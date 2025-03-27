@@ -1,15 +1,14 @@
 import { Stack, type ErrorBoundaryProps } from "expo-router";
 import "@/global.css";
-import { AuthProvider } from "@pkg/ui";
+import { AuthProvider, useAuth } from "@pkg/ui";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createTRPCClient, httpBatchLink, TRPCClientError } from "@trpc/client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TRPCProvider } from "@/util/trpc";
 import { AppRouter } from "@repo/bg";
 import { View, Text } from "react-native";
-import { TRPCError } from "@trpc/server";
-import { getHTTPStatusCode, getHTTPStatusCodeFromError } from "@trpc/server/unstable-core-do-not-import";
+import { StatusBar } from "expo-status-bar";
 
 function makeQueryClient() {
   return new QueryClient({
@@ -19,7 +18,7 @@ function makeQueryClient() {
         // above 0 to avoid refetching immediately on the client
         staleTime: 60 * 1000,
         throwOnError: true,
-        retry: 0
+        retry: 0,
       },
     },
   });
@@ -87,17 +86,49 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
     }
 
     console.error("TRPC Error Code:", code);
-    console.error("TRPC Error Message:", error.message);
   }
 
   return (
-    <View className="flex flex-1 bg-slate-50 justify-center items-center">
-      <Text>{text}</Text>
-      {code !== "UNAUTHORIZED" && (
-        <Text onPress={retry} className="bg-slate-950 text-white rounded-lg p-6">
-          Try Again?
+    <View className="flex flex-1 bg-emerald-100 justify-center items-center">
+      <AuthProvider>
+        <Text className="text-2xl font-bold text-slate-900 ">
+          Something went wrong
         </Text>
-      )}
+        {code !== "UNAUTHORIZED" && (
+          <Text
+            onPress={retry}
+            className="bg-slate-950 text-white rounded-lg p-6"
+          >
+            Try Again?
+          </Text>
+        )}
+        <LogoutCOmp error={error} retry={retry} />
+        <StatusBar style="auto" />
+      </AuthProvider>
     </View>
   );
+}
+
+function LogoutCOmp({
+  error,
+  retry,
+}: {
+  error: Error;
+  retry: () => Promise<void>;
+}) {
+  const { logout } = useAuth();
+  useEffect(() => {
+    let code: string | undefined = undefined;
+
+    if (error instanceof TRPCClientError) {
+      code = error.data?.code;
+
+      if (code === "UNAUTHORIZED") {
+        console.log("Logging out due to UNAUTHORIZED error");
+        logout();
+        retry()
+      }
+    }
+  }, [error]);
+  return null;
 }

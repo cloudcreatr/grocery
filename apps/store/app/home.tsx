@@ -1,12 +1,13 @@
 import { useTRPC } from "@/util/trpc";
-import { useAuth, useProtectedRoute } from "@pkg/ui";
+import { useAuth } from "@pkg/ui";
 import { useQuery } from "@tanstack/react-query";
 import { Button, Text, View } from "react-native";
 
 export default function home() {
   const { logout } = useAuth();
   const trpc = useTRPC();
-  const { data, isLoading } = useQuery(trpc.test.queryOptions());
+
+  const { authState } = useAuth();
 
   return (
     <View>
@@ -18,7 +19,12 @@ export default function home() {
         }}
       />
       <Text>hi</Text>
-      {isLoading ? <Text>Loading...</Text> : <Text>{data?.message}</Text>}
+      <Text>{authState.status}</Text>
+      <Text>
+        {authState.status === "authenticated"
+          ? JSON.stringify(authState.user)
+          : null}
+      </Text>
     </View>
   );
 }
