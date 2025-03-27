@@ -2,15 +2,13 @@
   "name": "@repo/backend",
   "main": "./src/index.ts",
   "scripts": {
-    "dev": "bun run --watch src/index.ts",
-    "mig:gen": "drizzle-kit generate",
-    "mig:run": "drizzle-kit migrate",
-    "mig:drop": "drizzle-kit drop",
-    "build": "tsc -p tsconfig.build.json"
+    "dev": "bun run --watch src/index.ts"
   },
   "dependencies": {
     "@hono/trpc-server": "^0.3.4",
     "@hono/zod-validator": "^0.4.3",
+    "@openauthjs/openauth": "^0.4.3",
+    "@pkg/lib": "workspace:*",
     "@tanstack/react-query": "^5.69.0",
     "@trpc/client": "^11.0.0",
     "@trpc/server": "^11.0.0",

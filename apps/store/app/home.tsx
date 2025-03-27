@@ -3,7 +3,7 @@ import { Button, Text, View } from "react-native";
 
 export default function home() {
   const { logout } = useAuth();
-  const tokens = useProtectedRoute();
+
   return (
     <View>
       <Text>Home</Text>
@@ -13,8 +13,7 @@ export default function home() {
           await logout();
         }}
       />
-      <Text>{tokens.access_token}</Text>
-      <Text>{tokens.refresh_token}</Text>
+      <Text>hi</Text>
     </View>
   );
 }

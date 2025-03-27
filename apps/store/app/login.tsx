@@ -12,11 +12,10 @@ import {
 
 export default function App() {
   const auth = useAuth();
-  const trpc = useTRPC();
-  const { data, isLoading } = useQuery(trpc.hello.queryOptions("React native"));
-
+  
+  
   const { login, isExchangeToken } = auth;
-  const d = data?.message;
+ 
   return (
     <SafeAreaView>
       <View className=" h-full ">
@@ -31,12 +30,7 @@ export default function App() {
           <Text>{isExchangeToken ? "Logging in..." : "Login"}</Text>
         </TouchableOpacity>
 
-        {isLoading ? (
-          <Text>Loading...</Text>
-        ) : (
-          <Text>{d ? data?.message : "no data"}</Text>
-        )}
-       
+        
       </View>
     </SafeAreaView>
   );

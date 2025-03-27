@@ -1,5 +1,5 @@
 {
-  "name": "auth",
+  "name": "@repo/auth-server",
   "module": "index.ts",
   "type": "module",
   "devDependencies": {
@@ -7,13 +7,13 @@
   },
   "scripts": {
     "dev": "bun run --watch index.ts"
-    
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
     "@openauthjs/openauth": "^0.4.3",
-    "valibot": "^1.0.0"
+    "zod": "^3.24.2",
+    "@pkg/lib": "workspace:*"
   }
 }

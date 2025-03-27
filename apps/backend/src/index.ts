@@ -1,29 +1,19 @@
-import { initTRPC } from "@trpc/server";
-import { z } from "zod";
 import { Hono } from "hono";
 import { trpcServer } from "@hono/trpc-server"; // Deno 'npm:@hono/trpc-server'
 
 import { cors } from "hono/cors";
-const t = initTRPC.create();
-
-const publicProcedure = t.procedure;
-const router = t.router;
-
-async function hello(input: string) {
-  return `Hello ${input + "Worldfghfsdfsdfsdfsdfsdfsdfsdfsdffgh"}!`;
-}
+import { publicProcedure, router } from "./util/trpc";
+import { refresh } from "./auth";
+import { TRPCError } from "@trpc/server";
 
 const appRouter = router({
-  hello: publicProcedure
-    .input(z.string().nullish())
-    .query(async ({ input }) => {
-      const data = await hello(input ?? "World");
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log("data", data);
-      return {
-        message: data,
-      };
-    }),
+  auth: refresh,
+  test: publicProcedure.query(() => {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "You are not allowed to access this resource",
+    });
+  }),
 });
 
 export type AppRouter = typeof appRouter;
