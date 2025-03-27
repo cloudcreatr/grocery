@@ -1,6 +1,6 @@
 import { Stack } from "expo-router";
 import "@/global.css";
-import { AuthProvider } from "@pkg/lib";
+import { AuthProvider } from "@pkg/ui";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createTRPCClient, httpBatchLink } from "@trpc/client";

@@ -1,14 +1,22 @@
 {
   "name": "@pkg/lib",
-  "main": "./src/index.tsx",
+  "main": "./src/index.ts",
   "type": "module",
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "^1.2.6",
+    "drizzle-kit": "^0.30.6"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
+  "scripts": {
+    "mig:gen": "drizzle-kit generate",
+    "mig:run": "drizzle-kit migrate",
+    "mig:drop": "drizzle-kit drop"
+  },
   "dependencies": {
+    "better-sqlite3": "^11.9.1",
+    "drizzle-orm": "^0.41.0",
     "expo-auth-session": "~6.0.3",
     "expo-secure-store": "~14.0.1"
   }

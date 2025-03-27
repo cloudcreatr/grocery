@@ -1,4 +1,4 @@
-import { useAuth } from "@pkg/lib";
+import { useAuth } from "@pkg/ui";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Button, SafeAreaView, View, Text } from "react-native";

@@ -1,7 +1,7 @@
 
 import { useTRPC } from "@/util/trpc";
 import { useQuery } from "@tanstack/react-query";
-import { useAuth  } from "@pkg/lib";
+import { useAuth } from "@pkg/ui";
 import {
   Button,
   SafeAreaView,

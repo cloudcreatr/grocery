@@ -1,0 +1,11 @@
+{
+  "name": "@pkg/ui",
+  "module": "index.tsx",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
