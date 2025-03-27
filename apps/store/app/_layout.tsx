@@ -1,12 +1,15 @@
-import { Stack } from "expo-router";
+import { Stack, type ErrorBoundaryProps } from "expo-router";
 import "@/global.css";
 import { AuthProvider } from "@pkg/ui";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { createTRPCClient, httpBatchLink } from "@trpc/client";
+import { createTRPCClient, httpBatchLink, TRPCClientError } from "@trpc/client";
 import { useState } from "react";
 import { TRPCProvider } from "@/util/trpc";
-import { AppRouter } from "@repo/backend";
+import { AppRouter } from "@repo/bg";
+import { View, Text } from "react-native";
+import { TRPCError } from "@trpc/server";
+import { getHTTPStatusCode, getHTTPStatusCodeFromError } from "@trpc/server/unstable-core-do-not-import";
 
 function makeQueryClient() {
   return new QueryClient({
@@ -16,6 +19,7 @@ function makeQueryClient() {
         // above 0 to avoid refetching immediately on the client
         staleTime: 60 * 1000,
         throwOnError: true,
+        retry: 0
       },
     },
   });
@@ -61,5 +65,39 @@ export default function App({ children }: { children: React.ReactNode }) {
         </AuthProvider>
       </TRPCProvider>
     </QueryClientProvider>
+  );
+}
+
+export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
+  let text = "An error occurred";
+  let code: string | undefined = undefined;
+
+  if (error instanceof TRPCClientError) {
+    code = error.data?.code;
+
+    switch (code) {
+      case "UNAUTHORIZED":
+        text = "Unauthorized";
+        break;
+      case "FORBIDDEN":
+        text = error.data.message || "Forbidden";
+        break;
+      default:
+        text = "An error occurred";
+    }
+
+    console.error("TRPC Error Code:", code);
+    console.error("TRPC Error Message:", error.message);
+  }
+
+  return (
+    <View className="flex flex-1 bg-slate-50 justify-center items-center">
+      <Text>{text}</Text>
+      {code !== "UNAUTHORIZED" && (
+        <Text onPress={retry} className="bg-slate-950 text-white rounded-lg p-6">
+          Try Again?
+        </Text>
+      )}
+    </View>
   );
 }

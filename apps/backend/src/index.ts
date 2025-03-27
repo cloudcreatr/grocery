@@ -1,7 +1,6 @@
 import { Hono } from "hono";
 import { trpcServer } from "@hono/trpc-server"; // Deno 'npm:@hono/trpc-server'
 
-import { cors } from "hono/cors";
 import { publicProcedure, router } from "./util/trpc";
 import { refresh } from "./auth";
 import { TRPCError } from "@trpc/server";
@@ -9,10 +8,14 @@ import { TRPCError } from "@trpc/server";
 const appRouter = router({
   auth: refresh,
   test: publicProcedure.query(() => {
+    console.log("test");
     throw new TRPCError({
-      code: "FORBIDDEN",
+      code: "UNAUTHORIZED",
       message: "You are not allowed to access this resource",
     });
+    return {
+      message: "Hello, World!",
+    };
   }),
 });
 
@@ -20,12 +23,6 @@ export type AppRouter = typeof appRouter;
 
 const app = new Hono();
 
-app.use(
-  "*",
-  cors({
-    origin: ["http://127.0.0.1:8081/"],
-  })
-);
 app.use(
   "/trpc/*",
   trpcServer({
