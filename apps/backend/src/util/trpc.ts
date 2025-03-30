@@ -1,21 +1,38 @@
 import { initTRPC, TRPCError } from "@trpc/server";
-import { z } from "zod";
+
 import { subjects } from "@pkg/lib";
 import { client } from "./client";
 
 
-const tokens = z.object({
-  accessToken: z.string(),
-});
 
 
-const t = initTRPC.create();
+type HonoContext = {
+  header: Headers;
+};
+
+const t = initTRPC.context<HonoContext>().create();
 
 export const publicProcedure = t.procedure;
 export const protectedProcedure = publicProcedure
-  .input(tokens)
   .use(async (opt) => {
-    const { accessToken } = opt.input;
+    const { header } = opt.ctx;
+    const authorization = header.get("authorization");
+    if (!authorization) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "Unauthorize, no authorization header",
+      });
+    }
+    const token = authorization.split(" ")[1];
+    if (!token) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "Unauthorize, no access_token",
+      });
+    }
+    const accessToken = token;
+   
+
     const claims = await client.verify(subjects, accessToken);
     if (claims.err) {
       throw new TRPCError({
@@ -26,7 +43,7 @@ export const protectedProcedure = publicProcedure
     return opt.next({
       ctx: {
         user: claims.subject.properties,
-        token: claims.tokens,
+       
       },
     });
   });

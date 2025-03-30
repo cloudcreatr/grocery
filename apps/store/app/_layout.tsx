@@ -1,6 +1,7 @@
 import { Stack, type ErrorBoundaryProps } from "expo-router";
 import "@/global.css";
-import { AuthProvider, useAuth } from "@pkg/ui";
+import { AuthProvider, getToken, useAuth } from "@pkg/ui";
+import "expo-dev-client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createTRPCClient, httpBatchLink, TRPCClientError } from "@trpc/client";
@@ -18,34 +19,28 @@ function makeQueryClient() {
         // above 0 to avoid refetching immediately on the client
         staleTime: 60 * 1000,
         throwOnError: true,
-        retry: 0,
+        retry: 2,
       },
     },
   });
 }
 
-let browserQueryClient: QueryClient | undefined = undefined;
-
-function getQueryClient() {
-  if (typeof window === "undefined") {
-    // Server: always make a new query client
-    return makeQueryClient();
-  } else {
-    // Browser: make a new query client if we don't already have one
-    // This is very important, so we don't re-make a new client if React
-    // suspends during the initial render. This may not be needed if we
-    // have a suspense boundary BELOW the creation of the query client
-    if (!browserQueryClient) browserQueryClient = makeQueryClient();
-    return browserQueryClient;
-  }
-}
 export default function App({ children }: { children: React.ReactNode }) {
-  const queryClient = getQueryClient();
+  const queryClient = makeQueryClient();
   const [trpcClient] = useState(() =>
     createTRPCClient<AppRouter>({
       links: [
         httpBatchLink({
-          url: `http://${process.env.EXPO_PUBLIC_API}/trpc`,
+          url: `${process.env.EXPO_PUBLIC_API}/trpc`,
+          headers: async () => {
+            const token = await getToken();
+            if (token) {
+              return {
+                Authorization: `Bearer ${token}`,
+              };
+            }
+            return {};
+          },
         }),
       ],
     })
@@ -126,7 +121,7 @@ function LogoutCOmp({
       if (code === "UNAUTHORIZED") {
         console.log("Logging out due to UNAUTHORIZED error");
         logout();
-        retry()
+        retry();
       }
     }
   }, [error]);

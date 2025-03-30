@@ -35,8 +35,8 @@ interface AuthContextType {
 }
 
 const discovery = {
-  authorizationEndpoint: `https://${process.env.EXPO_PUBLIC_AUTH}/authorize`,
-  tokenEndpoint: `https://${process.env.EXPO_PUBLIC_AUTH}/token`,
+  authorizationEndpoint: `${process.env.EXPO_PUBLIC_AUTH}/authorize`,
+  tokenEndpoint: `${process.env.EXPO_PUBLIC_AUTH}/token`,
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -170,3 +170,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 }
 
 WebBrowser.maybeCompleteAuthSession();
+
+
+export function getToken() {
+  return SecureStore.getItemAsync("access_token");
+}
