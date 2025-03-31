@@ -1,16 +1,15 @@
-import { Button, CustomView, Om, Om3 } from "@/components/view";
+import {  CustomView } from "@/components/view";
 import { useTRPC } from "@/util/trpc";
 import { Om2, useAuthStore } from "@pkg/ui";
 
 import { useQuery } from "@tanstack/react-query";
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { Text, TouchableOpacity, View } from "react-native";
 
 export default function home() {
   const logout = useAuthStore((s) => s.logout);
   const trpc = useTRPC();
   const router = useRouter();
- 
 
   return (
     <CustomView className="flex-1 items-center justify-center">
@@ -25,6 +24,14 @@ export default function home() {
       >
         <Text className="text-white">logout</Text>
       </TouchableOpacity>
+      <Link
+        href={{
+          pathname: "/user",
+        
+        }}
+      >
+        go to user
+      </Link>
       <Om2 />
     </CustomView>
   );

@@ -1,19 +1,12 @@
 import { Hono } from "hono";
 import { trpcServer } from "@hono/trpc-server"; // Deno 'npm:@hono/trpc-server'
 
-import { protectedProcedure, publicProcedure, router } from "./util/trpc";
-import { refresh } from "./auth";
-import { TRPCError } from "@trpc/server";
-import { user } from "@pkg/lib";
+import {  router } from "./util/trpc";
+
+import { userDetails } from "./user";
 
 const appRouter = router({
-  auth: refresh,
-  test: protectedProcedure.query((opt) => {
-    const { ctx } = opt;
-    return {
-      user: ctx.user,
-    };
-  }),
+  user: userDetails,
 });
 
 export type AppRouter = typeof appRouter;

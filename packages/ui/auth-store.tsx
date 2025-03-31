@@ -8,6 +8,7 @@ import {
 } from "expo-auth-session";
 import { type Router } from "expo-router";
 import { jwtDecode } from "jwt-decode";
+import type { Sub } from "@pkg/lib";
 
 interface Tokens {
   access_token: string;
@@ -16,7 +17,7 @@ interface Tokens {
 
 interface AuthState {
   status: "loading" | "unauthenticated" | "authenticated";
-  user: any | null;
+  user: Sub | null;
   isExchangeToken: boolean;
   login: (code: string, codeVerifier: string, router: Router) => Promise<void>;
   logout: (router: Router) => Promise<void>;
@@ -97,7 +98,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const refreshToken = await SecureStore.getItemAsync("refresh_token");
 
       if (accessToken && refreshToken) {
-        const user = jwtDecode<{ properties: any }>(accessToken);
+        const user = jwtDecode<{ properties: Sub }>(accessToken);
         set({ status: "authenticated", user: user.properties });
       } else {
         set({ status: "unauthenticated", user: null });

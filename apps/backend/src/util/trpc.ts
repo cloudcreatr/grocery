@@ -2,14 +2,20 @@ import { initTRPC, TRPCError } from "@trpc/server";
 
 import { subjects } from "@pkg/lib";
 import { client } from "./client";
-
+import { db } from "@pkg/lib";
 type HonoContext = {
   header: Headers;
 };
 
 const t = initTRPC.context<HonoContext>().create();
 
-export const publicProcedure = t.procedure;
+export const publicProcedure = t.procedure.use((o) => {
+  return o.next({
+    ctx: {
+      db,
+    },
+  });
+});
 export const protectedProcedure = publicProcedure.use(async (opt) => {
   const { header } = opt.ctx;
   const authorization = header.get("authorization");
@@ -27,7 +33,7 @@ export const protectedProcedure = publicProcedure.use(async (opt) => {
     });
   }
   const accessToken = token;
- console.log("accessToken", accessToken);
+  console.log("accessToken", accessToken);
 
   const claims = await client.verify(subjects, accessToken);
   if (claims.err) {
