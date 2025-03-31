@@ -1,4 +1,4 @@
-import { useAuthLogin, useAuthStore } from "@pkg/ui";
+import { Om2, useAuthLogin, useAuthStore } from "@pkg/ui";
 import {
   Button,
   SafeAreaView,
@@ -8,17 +8,11 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 
-
 export default function App() {
   const router = useRouter();
   const login = useAuthLogin();
   const isExchangeToken = useAuthStore((s) => s.isExchangeToken);
 
-
-
-
-
- 
   return (
     <SafeAreaView>
       <View className=" h-full ">
@@ -34,8 +28,8 @@ export default function App() {
           </Text>
         </TouchableOpacity>
         <Text>hi bro</Text>
-        
-       
+
+        <Om2 />
       </View>
     </SafeAreaView>
   );

@@ -1,10 +1,11 @@
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Drawer } from "expo-router/drawer";
+import { StatusBar } from "expo-status-bar";
 
 export default function Layout() {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <Drawer>
+    <GestureHandlerRootView style={{ flex: 1 }} >
+      <Drawer >
         <Drawer.Screen
           name="home" // This is the name of the page and must match the url from root
           options={{
@@ -20,6 +21,7 @@ export default function Layout() {
           }}
         />
       </Drawer>
+      <StatusBar style="auto" />
     </GestureHandlerRootView>
   );
 }
