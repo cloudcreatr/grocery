@@ -1,6 +1,4 @@
-import { useTRPC } from "@/util/trpc";
-import { useQuery } from "@tanstack/react-query";
-import { useAuth } from "@pkg/ui";
+import { useAuthLogin, useAuthStore } from "@pkg/ui";
 import {
   Button,
   SafeAreaView,
@@ -8,27 +6,36 @@ import {
   Text,
   TouchableOpacity,
 } from "react-native";
+import { useRouter } from "expo-router";
+
 
 export default function App() {
-  const auth = useAuth();
+  const router = useRouter();
+  const login = useAuthLogin();
+  const isExchangeToken = useAuthStore((s) => s.isExchangeToken);
 
-  const { login, isExchangeToken } = auth;
 
+
+
+
+ 
   return (
     <SafeAreaView>
       <View className=" h-full ">
-       
-        <Text>
-          om
-</Text>
+        <Text>om</Text>
         <TouchableOpacity
           onPress={() => {
-            login();
+            login(router);
           }}
           className="bg-blue-900 p-6 rounded-lg"
         >
-          <Text>{isExchangeToken ? "Logging in..." : "Login"}</Text>
+          <Text className="text-white">
+            {isExchangeToken ? "loading" : "Login with code"}
+          </Text>
         </TouchableOpacity>
+        <Text>hi bro</Text>
+        
+       
       </View>
     </SafeAreaView>
   );

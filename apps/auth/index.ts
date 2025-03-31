@@ -5,10 +5,9 @@ import { CodeProvider } from "@openauthjs/openauth/provider/code";
 import { CodeUI } from "@openauthjs/openauth/ui/code";
 
 import { db, eq, user, subjects, type Sub } from "@pkg/lib";
-
-
-
-export default issuer({
+import { Hono } from "hono";
+const app = new Hono();
+const r = issuer({
   subjects,
   storage: MemoryStorage({
     persist: "./persist.json",
@@ -62,4 +61,11 @@ export default issuer({
 
     throw new Error("Invalid provider");
   },
+});
+app.route("/", r);
+
+Bun.serve({
+  idleTimeout: 100,
+  port: 3000,
+  fetch: app.fetch,
 });

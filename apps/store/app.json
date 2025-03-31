@@ -14,7 +14,6 @@
     "android": {
       "package": "com.omnaidu.store"
     },
-
     "splash": {
       "enabled": false
     },
@@ -29,5 +28,6 @@
         "projectId": "72402732-6991-4a29-b89e-dd15d5e8b55a"
       }
     }
+    
   }
 }

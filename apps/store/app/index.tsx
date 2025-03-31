@@ -1,23 +1,21 @@
-import { useAuth } from "@pkg/ui";
+import { useAuthStore } from "@pkg/ui";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
-import { Button, SafeAreaView, View, Text } from "react-native";
+import { useEffect } from "react";
+import { View, Text } from "react-native";
 
 export default function App() {
-  const { authState } = useAuth();
+  const status = useAuthStore((s) => s.status);
   const router = useRouter();
 
   useEffect(() => {
-    let timer: Timer | null = null;
+    let timer: ReturnType<typeof setTimeout> | null = null;
 
-    if (authState.status === "authenticated") {
+    if (status === "authenticated") {
       timer = setTimeout(() => {
-        router.replace("/home");
+        router.replace("/(main)/home");
       }, 1000);
       console.log("logged in /index");
-    }
-
-    if (authState.status === "unauthenticated") {
+    } else if (status === "unauthenticated") {
       timer = setTimeout(() => {
         router.replace("/login");
       }, 1000);
@@ -29,12 +27,11 @@ export default function App() {
         clearTimeout(timer);
       }
     };
-  }, [authState, router]);
+  }, [status, router]);
+
   return (
-    <>
-      <View>
-        <Text>Slash sceen</Text>
-      </View>
-    </>
+    <View>
+      <Text>Slash screen</Text>
+    </View>
   );
 }

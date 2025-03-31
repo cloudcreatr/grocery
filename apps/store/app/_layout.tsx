@@ -1,6 +1,6 @@
-import { Stack, type ErrorBoundaryProps } from "expo-router";
+import { Stack, useRouter, type ErrorBoundaryProps } from "expo-router";
 import "@/global.css";
-import { AuthProvider, getToken, useAuth } from "@pkg/ui";
+import {  getToken, useAuthStore } from "@pkg/ui";
 import "expo-dev-client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -45,18 +45,20 @@ export default function App({ children }: { children: React.ReactNode }) {
       ],
     })
   );
+  const load = useAuthStore((s) => s.loadAuthState);
+  useEffect(() => {
+    load();
+  }, []);
   return (
     <QueryClientProvider client={queryClient}>
       <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
-        <AuthProvider>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-            }}
-          >
-            {children}
-          </Stack>
-        </AuthProvider>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+          }}
+        >
+          {children}
+        </Stack>
       </TRPCProvider>
     </QueryClientProvider>
   );
@@ -85,21 +87,19 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
 
   return (
     <View className="flex flex-1 bg-emerald-100 justify-center items-center">
-      <AuthProvider>
-        <Text className="text-2xl font-bold text-slate-900 ">
-          Something went wrong
+      <Text className="text-2xl font-bold text-slate-900 ">
+        Something went wrong
+      </Text>
+      {code !== "UNAUTHORIZED" && (
+        <Text
+          onPress={retry}
+          className="bg-slate-950 text-white rounded-lg p-6"
+        >
+          Try Again?
         </Text>
-        {code !== "UNAUTHORIZED" && (
-          <Text
-            onPress={retry}
-            className="bg-slate-950 text-white rounded-lg p-6"
-          >
-            Try Again?
-          </Text>
-        )}
-        <LogoutCOmp error={error} retry={retry} />
-        <StatusBar style="auto" />
-      </AuthProvider>
+      )}
+      <LogoutCOmp error={error} retry={retry} />
+      <StatusBar style="auto" />
     </View>
   );
 }
@@ -111,19 +111,23 @@ function LogoutCOmp({
   error: Error;
   retry: () => Promise<void>;
 }) {
-  const { logout } = useAuth();
+  const logout = useAuthStore((s) => s.logout);
+  const router = useRouter();
+
   useEffect(() => {
-    let code: string | undefined = undefined;
+    if (!(error instanceof TRPCClientError)) return;
 
-    if (error instanceof TRPCClientError) {
-      code = error.data?.code;
+    const code = error.data?.code;
 
-      if (code === "UNAUTHORIZED") {
-        console.log("Logging out due to UNAUTHORIZED error");
-        logout();
-        retry();
-      }
+    if (code === "UNAUTHORIZED") {
+      console.log("Logging out due to UNAUTHORIZED error");
+
+      // ✅ Ensure we only log out ONCE per error occurrence
+      logout(router).then(() => {
+        retry(); // Try again after logging out
+      });
     }
-  }, [error]);
+  }, [error, logout, router, retry]); // ✅ Dependencies properly managed
+
   return null;
 }
