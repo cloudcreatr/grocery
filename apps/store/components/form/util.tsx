@@ -1,22 +1,40 @@
-import { createFormHookContexts, createFormHook } from "@tanstack/react-form";
-
+import {
+  createFormHookContexts,
+  createFormHook,
+  useStore,
+} from "@tanstack/react-form";
+import { useEffect, useState } from "react";
+import {
+  TextInput,
+  View,
+  type TextInputProps,
+  Text,
+  TouchableOpacity,
+} from "react-native";
+import { Address, GPS } from "./address";
+import { UploadField } from "./upload";
+import { z } from "zod";
 
 export const { fieldContext, formContext, useFieldContext, useFormContext } =
   createFormHookContexts();
 
 export const { useAppForm } = createFormHook({
+  
   fieldContext,
   formContext,
   // We'll learn more about these options later
   fieldComponents: {
     Input,
+    Address,
+    GPS,
+    UploadField,
   },
   formComponents: {
     Submit,
   },
 });
 
-import { Text, TouchableOpacity } from "react-native";
+
 
 export function Submit({
   text,
@@ -56,12 +74,11 @@ export function Submit({
   );
 }
 
-import { TextInput, View, type TextInputProps } from "react-native";
-
 export function Input(prop: TextInputProps) {
   const field = useFieldContext<string>();
+  console.log("INPUT", field.state.value);
   return (
-    <View className="bg-white border border-slate-300 rounded-2xl p-8  w-full placeholder-slate-400  ">
+    <View className="bg-white border border-slate-300 rounded-2xl p-4  w-full placeholder-slate-400  ">
       <TextInput
         {...prop}
         className=" "
@@ -71,3 +88,8 @@ export function Input(prop: TextInputProps) {
     </View>
   );
 }
+
+
+
+
+

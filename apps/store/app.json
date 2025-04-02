@@ -14,9 +14,7 @@
     "android": {
       "package": "com.omnaidu.store"
     },
-    "splash": {
-      "enabled": false
-    },
+    
     "experiments": {
       "typedRoutes": true
     },

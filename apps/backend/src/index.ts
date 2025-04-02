@@ -1,18 +1,22 @@
 import { Hono } from "hono";
 import { trpcServer } from "@hono/trpc-server"; // Deno 'npm:@hono/trpc-server'
 
-import {  router } from "./util/trpc";
-
+import { router } from "./util/trpc";
+import { logger } from "hono/logger";
 import { userDetails } from "./user";
+import { maps } from "./map";
+import { upload, uploadFile } from "./upload";
 
 const appRouter = router({
   user: userDetails,
+  maps: maps,
+  file: uploadFile,
 });
 
 export type AppRouter = typeof appRouter;
 
 const app = new Hono();
-
+app.use(logger())
 app.use(
   "/trpc/*",
   trpcServer({
@@ -24,6 +28,8 @@ app.use(
     },
   })
 );
+
+app.route("/upload", upload);
 
 app.get("/", (c) => {
   return c.json({
