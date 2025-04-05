@@ -1,4 +1,4 @@
-import { Om2, useAuthLogin, useAuthStore } from "@pkg/ui";
+import { Loading, TextComponent, useAuthLogin, useAuthStore } from "@pkg/ui";
 import {
   Button,
   SafeAreaView,
@@ -7,7 +7,8 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useRouter } from "expo-router";
-
+import MapView from 'react-native-maps';
+import { PROVIDER_GOOGLE } from "react-native-maps";
 export default function App() {
   const router = useRouter();
   const login = useAuthLogin();
@@ -15,9 +16,7 @@ export default function App() {
 
   return (
     <SafeAreaView>
-      <View className=" h-full ">
-        <Text>om</Text>
-        <TouchableOpacity
+      <TouchableOpacity
           onPress={() => {
             login(router);
           }}
@@ -27,10 +26,9 @@ export default function App() {
             {isExchangeToken ? "loading" : "Login with code"}
           </Text>
         </TouchableOpacity>
-        <Text>hi bro</Text>
-
-        <Om2 />
-      </View>
+      
     </SafeAreaView>
   );
 }
+
+

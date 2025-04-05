@@ -9,11 +9,20 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "config": {
+        "googleMapsApiKey": "AIzaSyAIKcZqcS6FPbnDoqp47QAMS9-gl0v0heY"
+      }
     },
     "android": {
-      "package": "com.omnaidu.store"
+      "package": "com.omnaidu.store",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyAIKcZqcS6FPbnDoqp47QAMS9-gl0v0heY"
+        }
+      }
     },
+    
     
     "experiments": {
       "typedRoutes": true

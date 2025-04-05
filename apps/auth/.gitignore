@@ -29,6 +29,6 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # IntelliJ based IDEs
 .idea
-
+persist.json
 # Finder (MacOS) folder config
 .DS_Store

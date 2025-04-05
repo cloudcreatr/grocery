@@ -1,27 +1,29 @@
 import LottieView from "lottie-react-native";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Text } from "react-native";
 
 export function Loading({
-  islaoding,
+  isloading,
   children,
-  source,
+  source ,
 }: {
-  islaoding: boolean;
+  isloading: boolean;
   children: React.ReactNode;
-  source: any;
+  source: string;
 }) {
   return (
     <>
-      {islaoding ? (
-        <LottieView
-          autoPlay
-          loop
-          style={{
-            width: "100%",
-            height: "100%",
-          }}
-          source={source}
-        />
+      {isloading ? (
+        <View className="h-full w-full bg-slate-100">
+          <LottieView
+            autoPlay
+            loop
+            source={source}
+            style={{
+              width: "100%",
+              height: "100%",
+            }}
+          />
+        </View>
       ) : (
         children
       )}

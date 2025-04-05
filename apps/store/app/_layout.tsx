@@ -17,6 +17,7 @@ import { useEffect, useState } from "react";
 import { AppRouter } from "@repo/bg";
 import { View, Text } from "react-native";
 import { StatusBar } from "expo-status-bar";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 function makeQueryClient() {
   return new QueryClient({
@@ -63,7 +64,8 @@ export default function App({ children }: { children: React.ReactNode }) {
             headerShown: false,
           }}
         >
-          {children}
+          <SafeAreaView>{children}</SafeAreaView>
+          
         </Stack>
       </TRPCProvider>
     </QueryClientProvider>
