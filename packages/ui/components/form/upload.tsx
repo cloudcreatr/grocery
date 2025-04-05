@@ -8,11 +8,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { twMerge } from "tailwind-merge";
 import clsx from "clsx";
 import { is } from "@pkg/lib";
-export const uploadSchema = z.object({
-  uploadedFiles: z.string().array(),
-  deletedFiles: z.string().array(),
-});
-
+import { uploadSchema } from "@repo/bg";
 export function UploadField() {
   const field = useFieldContext<z.infer<typeof uploadSchema>>();
   const value = useStore(field.store, (s) => s.value);

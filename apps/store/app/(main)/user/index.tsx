@@ -1,11 +1,12 @@
-import { Loading, useAuthStore } from "@pkg/ui";
-import { useAppForm } from "@/components/form/util";
+import { Loading, useAuthStore, useQuery, useTRPC } from "@pkg/ui";
+import { useAppForm } from "@pkg/ui/components/form/util";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { z } from "zod";
-import { uploadSchema } from "@/components/form/upload";
+import { uploadSchema, addressSchema } from "@repo/bg";
 import { Text } from "react-native";
 
 const schema = z.object({
+  address: addressSchema,
   upload: uploadSchema,
 });
 export default function User() {
@@ -13,6 +14,7 @@ export default function User() {
   if (!user) return null;
   const form = useAppForm({
     defaultValues: {
+      address: "",
       upload: {
         uploadedFiles: [],
         deletedFiles: [],
@@ -25,6 +27,8 @@ export default function User() {
   });
 
   console.log("ERROR", form.state.errors);
+  const trpc = useTRPC();
+  const { data, isLoading } = useQuery(trpc.user.getUser.queryOptions());
   return (
     <SafeAreaView className="p-6 bg-slate-100">
       <Loading islaoding={false} source={require("@/assets/loading.json")}>
@@ -35,22 +39,19 @@ export default function User() {
           }}
         /> */}
 
-        {/* <form.AppField
-          name="adreess"
+        <form.AppField
+          name="address"
           children={(f) => {
             return (
               <f.Address
-                placeholder="address"
-                onAddressSelect={(c) => {
-                  form.setFieldValue("location", {
-                    lat: c.latitude,
-                    lng: c.longitude,
-                  });
+                onAddressSelect={(coords) => {
+                  console.log("coords", coords);
                 }}
               />
             );
           }}
-        /> */}
+        />
+        {!isLoading && <Text>{data?.doc?.id}</Text>}
         {/* <form.AppField
           name="location"
           children={(f) => {

@@ -7,16 +7,18 @@ import { userDetails } from "./user";
 import { maps } from "./map";
 import { upload, uploadFile } from "./upload";
 
-const appRouter = router({
+export const appRouter = router({
   user: userDetails,
   maps: maps,
   file: uploadFile,
 });
 
-export type AppRouter = typeof appRouter;
+
+
+
 
 const app = new Hono();
-app.use(logger())
+app.use(logger());
 app.use(
   "/trpc/*",
   trpcServer({

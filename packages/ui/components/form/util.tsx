@@ -1,9 +1,5 @@
-import {
-  createFormHookContexts,
-  createFormHook,
-  useStore,
-} from "@tanstack/react-form";
-import { useEffect, useState } from "react";
+import { createFormHookContexts, createFormHook } from "@tanstack/react-form";
+
 import {
   TextInput,
   View,
@@ -14,12 +10,11 @@ import {
 import { Address, GPS } from "./address";
 import { UploadField } from "./upload";
 import { z } from "zod";
-
+import { inputSchema } from "@repo/bg";
 export const { fieldContext, formContext, useFieldContext, useFormContext } =
   createFormHookContexts();
 
 export const { useAppForm } = createFormHook({
-  
   fieldContext,
   formContext,
   // We'll learn more about these options later
@@ -33,8 +28,6 @@ export const { useAppForm } = createFormHook({
     Submit,
   },
 });
-
-
 
 export function Submit({
   text,
@@ -75,8 +68,8 @@ export function Submit({
 }
 
 export function Input(prop: TextInputProps) {
-  const field = useFieldContext<string>();
-  console.log("INPUT", field.state.value);
+  const field = useFieldContext<z.infer<typeof inputSchema>>();
+
   return (
     <View className="bg-white border border-slate-300 rounded-2xl p-4  w-full placeholder-slate-400  ">
       <TextInput
@@ -88,8 +81,3 @@ export function Input(prop: TextInputProps) {
     </View>
   );
 }
-
-
-
-
-

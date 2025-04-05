@@ -1,8 +1,9 @@
-import { useTRPC } from "@/util/trpc";
+import { useTRPC } from "../.././util/trpc";
 import { useFieldContext } from "./util";
 import { useStore } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
+import { gpsSchema } from "@repo/bg";
 import {
   View,
   TextInput,
@@ -17,8 +18,11 @@ type AddressProps = TextInputProps & {
   debounce?: number;
   onAddressSelect: (coords: { latitude: number; longitude: number }) => void;
 };
+
+import { z } from "zod";
+import { addressSchema } from "@repo/bg";
 export function Address(prop: AddressProps) {
-  const field = useFieldContext<string>();
+  const field = useFieldContext<z.infer<typeof addressSchema>>();
   const [value, setValue] = useState<string>("");
   const [query, setQuery] = useState<string>(value);
   const t = useTRPC();
@@ -33,8 +37,6 @@ export function Address(prop: AddressProps) {
       }
     )
   );
-
-  console.log("Aderess", field.state.value);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -114,14 +116,15 @@ export function Address(prop: AddressProps) {
   );
 }
 
-export function GPS() {
+export function GPS({
+  onLocationSelect,
+}: {
+  onLocationSelect: (coords: z.infer<typeof gpsSchema>) => void;
+}) {
   const [location, setLocation] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const field = useFieldContext<{
-    latitude: number;
-    longitude: number;
-  }>();
+  const field = useFieldContext<z.infer<typeof gpsSchema>>();
 
   console.log("GPS", field.state.value.latitude);
   async function getCurrentLocation() {
@@ -138,6 +141,10 @@ export function GPS() {
       });
 
       field.setValue({
+        latitude: location2.coords.latitude,
+        longitude: location2.coords.longitude,
+      });
+      onLocationSelect({
         latitude: location2.coords.latitude,
         longitude: location2.coords.longitude,
       });

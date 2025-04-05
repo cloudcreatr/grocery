@@ -1,0 +1,15 @@
+import { z } from "zod";
+
+export const gpsSchema = z.object({
+  latitude: z.number(),
+  longitude: z.number(),
+});
+
+export const uploadSchema = z.object({
+  uploadedFiles: z.string().array(),
+  deletedFiles: z.string().array(),
+});
+
+export const inputSchema = z.string();
+
+export const addressSchema = z.string();

@@ -25,18 +25,13 @@ export const upload = new Hono()
       console.log("Uploading file");
       const form = await c.req.parseBody();
       const file = form["file"] as File;
-      
-    
-     
+
       console.log("Form", form);
 
-      
-
-      if (!file || !(file instanceof File) ) {
+      if (!file || !(file instanceof File)) {
         return c.json({ error: "Missing or invalid file upload" }, 400);
       }
       console.log("File", file);
-      
 
       const maxSize = 10 * 1024 * 1024; // 10MB limit
 
@@ -45,8 +40,7 @@ export const upload = new Hono()
       }
 
       // Create filename with original extension
-     
-      
+
       const bunfile = Bun.file(`uploads/${file.name}`, {
         type: file.type,
       });
@@ -55,7 +49,7 @@ export const upload = new Hono()
 
       return c.json({
         message: "File uploaded successfully",
-        
+
         originalName: file.name,
         size: file.size,
         type: file.type,

@@ -1,6 +1,6 @@
 {
   "name": "@repo/bg",
-  "main": "./src/index.ts",
+  "main": "./src/export.ts",
   "scripts": {
     "dev": "bun run --watch src/index.ts"
   },

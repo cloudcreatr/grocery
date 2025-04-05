@@ -1,12 +1,19 @@
 import { Stack, useRouter, type ErrorBoundaryProps } from "expo-router";
 import "@/global.css";
-import {  getToken, useAuthStore } from "@pkg/ui";
+import {
+  getToken,
+  useAuthStore,
+  QueryClient,
+  QueryClientProvider,
+  TRPCProvider,
+  createTRPCClient,
+  httpBatchLink,
+  TRPCClientError,
+} from "@pkg/ui";
 import "expo-dev-client";
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { createTRPCClient, httpBatchLink, TRPCClientError } from "@trpc/client";
 import { useEffect, useState } from "react";
-import { TRPCProvider } from "@/util/trpc";
+
 import { AppRouter } from "@repo/bg";
 import { View, Text } from "react-native";
 import { StatusBar } from "expo-status-bar";
@@ -17,9 +24,8 @@ function makeQueryClient() {
       queries: {
         // With SSR, we usually want to set some default staleTime
         // above 0 to avoid refetching immediately on the client
-        staleTime: 60 * 1000,
+
         throwOnError: true,
-        retry: 2,
       },
     },
   });

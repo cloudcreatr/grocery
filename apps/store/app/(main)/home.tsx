@@ -1,6 +1,6 @@
 import {  CustomView } from "@/components/view";
-import { useTRPC } from "@/util/trpc";
-import { Om2, useAuthStore } from "@pkg/ui";
+
+import { Om2, useAuthStore, useTRPC } from "@pkg/ui";
 
 import { useQuery } from "@tanstack/react-query";
 import { Link, useRouter } from "expo-router";
