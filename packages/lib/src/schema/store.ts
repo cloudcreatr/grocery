@@ -6,7 +6,7 @@ import {
   text,
 } from "drizzle-orm/sqlite-core";
 import { user } from "./user";
-
+import { z } from "zod";
 export const store = sqliteTable("store", {
   id: integer().primaryKey(),
   name: text(),
@@ -20,21 +20,33 @@ export const store = sqliteTable("store", {
   address: text(),
 });
 
-export interface IndianBankDetails {
-  IFSC: string;
+const IndianBankDetailsSchema = z.object({
+  IFSC: z.string(),
+  AccountNumber: z.string(),
+  BankName: z.string(),
+  BranchName: z.string(),
+  UPI: z.string(),
+});
 
-  AccountNumber: string;
-  BankName: string;
-  BranchName: string;
-  UPI: string;
-}
+type IndianBankDetails = z.infer<typeof IndianBankDetailsSchema>;
 
 export const bank = sqliteTable("bank", {
   id: integer().primaryKey(),
   userid: integer("user_id")
     .notNull()
     .references(() => user.id),
-  details: blob({ mode: "json" }).$type<IndianBankDetails>(),
+  details: blob({ mode: "json" })
+    .$type<IndianBankDetails>()
+    .$defaultFn(() => {
+      return {
+        IFSC: "",
+        AccountNumber: "",
+        BankName: "",
+        BranchName: "",
+        UPI: "",
+      };
+    })
+    .notNull(),
 });
 
 interface ProductImg {

@@ -11,6 +11,8 @@ import { Address, GPS } from "./address";
 import { UploadField } from "./upload";
 import { z } from "zod";
 import { inputSchema } from "@repo/bg";
+import { is } from "@pkg/lib";
+import { twMerge } from "tailwind-merge";
 export const { fieldContext, formContext, useFieldContext, useFormContext } =
   createFormHookContexts();
 
@@ -51,14 +53,18 @@ export function Submit({
       {(state) => {
         const canSubmit = state.canSubmit;
         const isDirty = state.isDirty;
+        const isDisabled = !canSubmit || isSubmitting || !isDirty;
         return (
           <TouchableOpacity
             onPress={onPress}
-            disabled={!canSubmit || isSubmitting || !isDirty}
-            className="p-6  rounded-2xl mt-6 bg-blue-600 px-8 "
+            disabled={isDisabled}
+            className={twMerge(
+              "p-6  rounded-2xl mt-6 bg-blue-600 px-8 ",
+              isDisabled && "opacity-50"
+            )}
           >
             <Text className="text-white font-semibold capitalize tracking-wider">
-              {isSubmitting ? "Submitting..." : text}
+              {isSubmitting ? "Saving..." : text}
             </Text>
           </TouchableOpacity>
         );

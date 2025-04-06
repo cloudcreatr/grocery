@@ -33,7 +33,6 @@ export const protectedProcedure = publicProcedure.use(async (opt) => {
     });
   }
   const accessToken = token;
-  
 
   const claims = await client.verify(subjects, accessToken);
   if (claims.err) {

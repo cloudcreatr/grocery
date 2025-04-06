@@ -1,6 +1,6 @@
-import {  CustomView } from "@/components/view";
+import { ViewComponent } from "@pkg/ui";
 
-import { Om2, useAuthStore, useTRPC } from "@pkg/ui";
+import { useAuthStore, useTRPC } from "@pkg/ui";
 
 import { useQuery } from "@tanstack/react-query";
 import { Link, useRouter } from "expo-router";
@@ -10,14 +10,10 @@ export default function home() {
   const logout = useAuthStore((s) => s.logout);
   const trpc = useTRPC();
   const router = useRouter();
-
+ 
   return (
-    <CustomView className="flex-1 items-center justify-center">
-      {/* <View className="border-2 border-slate-300 rounded-xl p-6">
-        <Text className="text-2xl font-bold text-slate-900 ">
-          {isLoading ? "Loading..." : "Hello " + data?.user.email}
-        </Text>
-      </View> */}
+    <ViewComponent className="flex-1 items-center justify-center">
+      
       <TouchableOpacity
         onPress={() => logout(router)}
         className="p-6 bg-slate-950 rounded-lg mt-6"
@@ -27,12 +23,10 @@ export default function home() {
       <Link
         href={{
           pathname: "/user",
-        
         }}
       >
         go to user
       </Link>
-      <Om2 />
-    </CustomView>
+    </ViewComponent>
   );
 }

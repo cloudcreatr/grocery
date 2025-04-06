@@ -9,6 +9,7 @@ import {
   createTRPCClient,
   httpBatchLink,
   TRPCClientError,
+  loggerLink
 } from "@pkg/ui";
 import "expo-dev-client";
 
@@ -37,6 +38,7 @@ export default function App({ children }: { children: React.ReactNode }) {
   const [trpcClient] = useState(() =>
     createTRPCClient<AppRouter>({
       links: [
+       
         httpBatchLink({
           url: `${process.env.EXPO_PUBLIC_API}/trpc`,
           headers: async () => {

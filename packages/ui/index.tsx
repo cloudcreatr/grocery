@@ -1,6 +1,6 @@
 export * from "./auth-store";
 export * from "./components/rn";
-
+export * from "./components/MainOverView";
 export * from "./components/loading";
 export * from "./upload-store"
 export * from "zustand"

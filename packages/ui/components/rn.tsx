@@ -6,6 +6,8 @@ import {
   type ViewProps,
   type TextProps,
   type TouchableOpacityProps,
+  type ScrollViewProps,
+  ScrollView,
 } from "react-native";
 
 import { twMerge } from "tailwind-merge";
@@ -22,6 +24,20 @@ export function ViewComponent({
     <View className={twMerge("bg-slate-100", className)} {...rest}>
       {children}
     </View>
+  );
+}
+export function ScrollViewComponent({
+  children,
+  className,
+  ...rest
+}: {
+  children: React.ReactNode;
+  className?: string;
+} & ScrollViewProps) {
+  return (
+    <ScrollView className={twMerge("bg-slate-100", className)} {...rest}>
+      {children}
+    </ScrollView>
   );
 }
 

@@ -79,6 +79,40 @@ export default function Layout() {
             },
           }}
         />
+        <Drawer.Screen
+          name="bank" // This is the name of the page and must match the url from root
+          options={{
+            drawerLabel: "Bank Information",
+            title: "Bank Information",
+            drawerIcon: ({ focused, color }) => {
+              return (
+                <Ionicons
+                  name="wallet-outline"
+                  size={30}
+                  className="pr-2"
+                  color={color}
+                />
+              );
+            },
+          }}
+        />
+        <Drawer.Screen
+          name="store" // This is the name of the page and must match the url from root
+          options={{
+            drawerLabel: "Store Information",
+            title: "Store Information",
+            drawerIcon: ({ focused, color }) => {
+              return (
+                <Ionicons
+                  name="storefront-outline"
+                  size={30}
+                  className="pr-2"
+                  color={color}
+                />
+              );
+            },
+          }}
+        />
       </Drawer>
       <StatusBar style="auto" />
     </GestureHandlerRootView>

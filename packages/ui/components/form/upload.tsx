@@ -2,19 +2,26 @@ import { z } from "zod";
 import { useFieldContext } from "./util";
 import { useStore } from "@tanstack/react-form";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
-import { upload_store, useStore as useUploadStore } from "@pkg/ui";
+import {
+  upload_store,
+  useStore as useUploadStore,
+  type startUploadoptions,
+} from "@pkg/ui";
 import { cva } from "class-variance-authority";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { twMerge } from "tailwind-merge";
 import clsx from "clsx";
 import { is } from "@pkg/lib";
 import { uploadSchema } from "@repo/bg";
-export function UploadField() {
+
+type UploadFieldProps = {
+  CardText: string;
+} & startUploadoptions;
+export function UploadField(props: UploadFieldProps) {
   const field = useFieldContext<z.infer<typeof uploadSchema>>();
   const value = useStore(field.store, (s) => s.value);
   const store = useUploadStore(upload_store, (s) => s);
   store.onComplete = (f) => {
-    console.log("Files uploaded", f);
     field.setValue({
       uploadedFiles: f.map((f) => f.fileName),
       deletedFiles: [],
@@ -23,40 +30,41 @@ export function UploadField() {
 
   return (
     <View>
-      <View>
-        <Text>is uploading: {store.isUploading ? "true" : "false"}</Text>
-        <Text>
-          {value.uploadedFiles.length === 0 ? (
-            <Card text="Upload file" isActive={false} />
-          ) : (
-            <Card
-              text={`Uploaded ${value.uploadedFiles.length} file(s)`}
-              isActive={true}
-            />
-          )}
-        </Text>
-        <TouchableOpacity>
+      {value.uploadedFiles.length === 0 ? (
+        <Card text={props.CardText} isActive={false} />
+      ) : (
+        <Card
+          text={`Uploaded ${value.uploadedFiles.length} file(s)`}
+          isActive={true}
+        />
+      )}
+
+      {store.selectedFiles.length > 0 ? (
+        <>
+          {store.selectedFiles.map((file, index) => (
+            <View
+              key={index}
+              className="flex gap-2 border p-4 rounded-2xl bg-white border-slate-200 mb-2  "
+            >
+              <Text className="font-semibold text-slate-800 text-base">
+                {file.fileName}
+              </Text>
+              <Text className="font-medium text-slate-500">{file.status}</Text>
+            </View>
+          ))}
+        </>
+      ) : (
+        <TouchableOpacity className="p-6 bg-blue-600 rounded-2xl ">
           <Text
+            className="text-white font-semibold"
             onPress={async () => {
-              store.selectAndUpload({
-                uploadUrl: `${process.env.EXPO_PUBLIC_API}/upload`,
-              });
+              store.selectAndUpload(props);
             }}
           >
             {value.uploadedFiles.length === 0 ? "Upload file" : "Change file"}
           </Text>
         </TouchableOpacity>
-        {store.selectedFiles.length > 0 && (
-          <ScrollView>
-            {store.selectedFiles.map((file, index) => (
-              <View key={index} className="flex  gap-2 border p-4 rounded-2xl bg-white border-slate-200  ">
-                <Text className="">{file.fileName}</Text>
-                <Text>{file.status}</Text>
-              </View>
-            ))}
-          </ScrollView>
-        )}
-      </View>
+      )}
     </View>
   );
 }
@@ -65,10 +73,8 @@ function Card({ text, isActive }: { text: string; isActive: boolean }) {
   return (
     <View
       className={twMerge(
-        clsx(
-          "bg-white p-8 border border-dotted border-slate-400 flex-1 w-full rounded-2xl flex flex-row  items-center",
-          isActive && "bg-blue-100 border-blue-600 "
-        )
+        "bg-white p-4 border border-dotted border-slate-400 gap-2  rounded-2xl flex flex-row  items-center mb-2",
+        isActive && "bg-blue-100 border-blue-600 "
       )}
     >
       {isActive && (
@@ -76,7 +82,8 @@ function Card({ text, isActive }: { text: string; isActive: boolean }) {
       )}
       <Text
         className={twMerge(
-          clsx("font-bold text-slate-800", isActive && "text-blue-800")
+          "font-bold text-slate-800",
+          isActive && "text-blue-800"
         )}
       >
         {text}

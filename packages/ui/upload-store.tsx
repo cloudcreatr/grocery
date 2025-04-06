@@ -22,7 +22,7 @@ type AssetsUploaded = {
   fileName: string;
 };
 
-interface startUploadoptions {
+export interface startUploadoptions {
   uploadUrl: string;
   multiple?: boolean;
   mimeType?: string[];

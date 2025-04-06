@@ -1,7 +1,5 @@
 import { Hono } from "hono";
-import { publicProcedure, router } from "./util/trpc";
-import { z } from "zod";
-import { TRPCError } from "@trpc/server";
+
 
 export const upload = new Hono()
   .get("/:id", async (c) => {
@@ -60,47 +58,7 @@ export const upload = new Hono()
     }
   });
 
-export const uploadFile = router({
-  upload: publicProcedure
-    .input(
-      z.object({
-        id: z.string(),
-        file: z.instanceof(File),
-        fileType: z.string(),
-        fileName: z.string(),
-      })
-    )
-    .mutation(async ({ input }) => {
-      const { id, file, fileType, fileName } = input;
 
-      const maxSize = 100 * 1024 * 1024; // 10MB limit
-
-      if (file.size > maxSize) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "File too large. Max size is 10MB",
-        });
-      }
-
-      // Create filename with original extension
-      const filename = `${id}`;
-      const originalExt = fileName.split(".").pop() || "";
-      const bunfile = Bun.file(`uploads/${filename}.${originalExt}`, {
-        type: fileType,
-      });
-
-      // Single write operation
-      await Bun.write(bunfile, file);
-
-      return {
-        message: "File uploaded successfully",
-        filename,
-        originalName: file.name,
-        size: file.size,
-        type: file.type,
-      };
-    }),
-});
 
 export const deleteFile = async (id: string) => {
   const bunfile = Bun.file(`uploads/${id}`);
