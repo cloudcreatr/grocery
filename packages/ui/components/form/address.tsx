@@ -199,6 +199,7 @@ export function GPS({
   );
 }
 import { useRef } from "react";
+import { CustomMarker } from "../rn";
 
 function Map({
   location,
@@ -253,16 +254,7 @@ function Map({
           }}
           title="Current Location"
         >
-          <View
-            className="bg-blue-600"
-            style={{
-              borderRadius: 100,
-              padding: 4,
-              overflow: "hidden",
-            }}
-          >
-            <Ionicons name="location-outline" size={20} color="white" />
-          </View>
+          <CustomMarker />
         </Marker>
       </MapView>
     </View>

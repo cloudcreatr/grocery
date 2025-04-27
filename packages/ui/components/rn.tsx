@@ -10,7 +10,7 @@ import {
   ScrollView,
   ActivityIndicator,
 } from "react-native";
-import type { BottomTabBarButtonProps } from "@react-navigation/bottom-tabs";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { twMerge } from "tailwind-merge";
 import { Link } from "expo-router";
 export function ViewComponent({
@@ -105,6 +105,21 @@ export function QuickActionRow({
       <Link className="text-blue-500 font-bold text-2xl" href={path}>
         {title2}
       </Link>
+    </View>
+  );
+}
+
+export function CustomMarker() {
+  return (
+    <View
+      className="bg-blue-600"
+      style={{
+        borderRadius: 100,
+        padding: 4,
+        overflow: "hidden",
+      }}
+    >
+      <Ionicons name="location-outline" size={20} color="white" />
     </View>
   );
 }

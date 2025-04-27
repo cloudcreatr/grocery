@@ -240,6 +240,24 @@ export const order = router({
         message: "Order completed",
       };
     }),
+  getDeliveryPartnerDetails: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      })
+    )
+    .query(async (op) => {
+      const { id } = op.input;
+      const { db } = op.ctx;
+      const deliveryPartnerDetails = await db
+        .select()
+        .from(user)
+        .where(eq(user.id, id));
+      if (deliveryPartnerDetails.length === 0) {
+        throw new Error("Delivery partner not found");
+      }
+      return deliveryPartnerDetails[0];
+    }),
   getOrderItemDetails: protectedProcedure
     .input(
       z.object({
@@ -249,22 +267,20 @@ export const order = router({
     .query(async (op) => {
       const { orderItemId } = op.input;
       const { db } = op.ctx;
+      console.log("Order Item ID", orderItemId);
       const orderDetails = await db
-        .select({
-          store,
-          product,
-          deliveryPartner: user,
-        })
+        .select()
         .from(orderItem)
         .where(eq(orderItem.id, orderItemId))
-        .innerJoin(product, eq(orderItem.productId, product.id))
         .innerJoin(store, eq(orderItem.storeID, store.id))
-        .innerJoin(user, eq(orderItem.deliveryPartnerId, user.id));
+        .innerJoin(product, eq(orderItem.productId, product.id));
 
-      if (!orderDetails || orderDetails.length === 0) {
+      console.log("Order Details", orderDetails);
+
+      if (orderDetails.length === 0) {
         throw new Error("Order not found");
       }
-      return orderDetails;
+      return orderDetails[0];
     }),
   getOrdersByDeliveryPartner: protectedProcedure.query(async (op) => {
     const { db, user: U } = op.ctx;
