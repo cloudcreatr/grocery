@@ -1,8 +1,9 @@
 import { initTRPC, TRPCError } from "@trpc/server";
 
-import { subjects } from "@pkg/lib";
+import { store, subjects } from "@pkg/lib";
 import { client } from "./client";
-import { db } from "@pkg/lib";
+import { db, eq } from "@pkg/lib";
+import { z } from "zod";
 type HonoContext = {
   header: Headers;
 };
@@ -18,6 +19,7 @@ export const publicProcedure = t.procedure.use((o) => {
 });
 export const protectedProcedure = publicProcedure.use(async (opt) => {
   const { header } = opt.ctx;
+
   const authorization = header.get("authorization");
   if (!authorization) {
     throw new TRPCError({
@@ -48,4 +50,44 @@ export const protectedProcedure = publicProcedure.use(async (opt) => {
     },
   });
 });
+
+export const storeProtectedProcedure = protectedProcedure.use(async (opt) => {
+  const { db, user } = opt.ctx;
+  const getStoreDetails = await db
+    .select()
+    .from(store)
+    .where(eq(store.userId, user.id));
+  let storeDetailsData = null;
+  if (getStoreDetails.length === 0) {
+    const storeDetails = await db
+      .insert(store)
+      .values({
+        userId: user.id,
+      })
+      .returning();
+    storeDetailsData = storeDetails[0];
+  } else {
+    storeDetailsData = getStoreDetails[0];
+  }
+  return opt.next({
+    ctx: {
+      storeDetails: storeDetailsData,
+    },
+  });
+});
+
+export const wsProcedure = publicProcedure
+  .input(
+    z.object({
+      id: z.number(),
+      email: z.string(),
+    })
+  )
+  .use(async (opt) => {
+    const input = opt.input;
+    return opt.next({
+      ctx: input,
+    });
+  });
+
 export const router = t.router;

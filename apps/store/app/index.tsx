@@ -1,7 +1,9 @@
 import { useAuthStore } from "@pkg/ui";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
+import { ButtonComponent } from "@pkg/ui";
 import { View, Text } from "react-native";
+import { StatusBar } from "expo-status-bar";
 
 export default function App() {
   const status = useAuthStore((s) => s.status);
@@ -32,6 +34,7 @@ export default function App() {
   return (
     <View>
       <Text>Slash screen</Text>
+      <StatusBar backgroundColor="blue" style="light" />
     </View>
   );
 }

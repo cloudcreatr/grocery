@@ -2,8 +2,12 @@ export * from "./auth-store";
 export * from "./components/rn";
 export * from "./components/MainOverView";
 export * from "./components/loading";
-export * from "./upload-store"
-export * from "zustand"
+export * from "./upload-store";
+export * from "zustand";
 export * from "@tanstack/react-query";
 export * from "./util/trpc";
-export * from "@trpc/client"
+export * from "@trpc/client";
+export * from "./components/image";
+export { useSubscription } from "@trpc/tanstack-react-query";
+export * from "./components/tabBar";
+export * from "./components/productCard"

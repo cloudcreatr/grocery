@@ -1,40 +1,17 @@
-import { useAuth } from "@pkg/lib";
-import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
-import { Button, SafeAreaView, View, Text } from "react-native";
-
-export default function App() {
-  const { authState } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    let timer: Timer | null = null;
-
-    if (authState.status === "authenticated") {
-      timer = setTimeout(() => {
-        router.replace("/home");
-      }, 1000);
-      console.log("logged in /index");
-    }
-
-    if (authState.status === "unauthenticated") {
-      timer = setTimeout(() => {
-        router.replace("/login");
-      }, 1000);
-      console.log("logged out /index");
-    }
-
-    return () => {
-      if (timer) {
-        clearTimeout(timer);
-      }
-    };
-  }, [authState, router]);
+import { ViewComponent } from "@pkg/ui";
+import ImageComponent from "@pkg/ui/components/image";
+import { Image } from "expo-image";
+import { Text } from "react-native";
+import { StyleSheet, View } from "react-native";
+export default function Login() {
   return (
-    <>
-      <View>
-        <Text>Slash sceen</Text>
-      </View>
-    </>
+    <ViewComponent className=" flex flex-1 items-center justify-center">
+      <Text>ommmrdd</Text>
+
+      <ImageComponent
+        className="w-full h-2/3 aspect-auto rounded-2xl overflow-hidden"
+        src="https://media.glamour.com/photos/5d922a0b55231b0008495a15/master/w_2560%2Cc_limit/stranger-things.jpg"
+      />
+    </ViewComponent>
   );
 }

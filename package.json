@@ -4,8 +4,8 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-   "tunnel": "sudo service cloudflared start"
-
+    "tunnel": "sudo service cloudflared start",
+    "backend": "turbo run backend"
   },
   "devDependencies": {
     "prettier": "^3.5.3",

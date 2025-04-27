@@ -53,19 +53,19 @@ interface ProductImg {
   imgID: string[];
 }
 
-export const category = [
-  "clothes",
-  "electronics",
-  "furniture",
-  "toys",
-  "books",
-] as const;
+export const category = sqliteTable("category", {
+  id: integer().primaryKey(),
+  name: text().notNull(),
+  description: text(),
+
+  img: text(),
+});
 
 export const product = sqliteTable("product", {
   id: integer().primaryKey(),
   name: text(),
   description: text(),
-  category: text({ enum: category }),
+  categoryID: integer("category_id").references(() => category.id),
 
   storeId: integer("store_id")
     .notNull()

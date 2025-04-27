@@ -9,12 +9,17 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "config": {
+        "googleMapsApiKey": "AIzaSyAIKcZqcS6FPbnDoqp47QAMS9-gl0v0heY"
+      }
     },
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+      "package": "com.omnaidu.user",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyAIKcZqcS6FPbnDoqp47QAMS9-gl0v0heY"
+        }
       }
     },
     "web": {
@@ -36,6 +41,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "e2f5508a-fa9b-4495-8e5c-2a5eeb1efe7a"
+      }
     }
   }
 }

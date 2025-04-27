@@ -8,10 +8,11 @@ import {
   type TouchableOpacityProps,
   type ScrollViewProps,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
-
+import type { BottomTabBarButtonProps } from "@react-navigation/bottom-tabs";
 import { twMerge } from "tailwind-merge";
-
+import { Link } from "expo-router";
 export function ViewComponent({
   children,
   className,
@@ -57,19 +58,59 @@ export function TextComponent({
 }
 
 export function ButtonComponent({
-  children,
   className,
+  isLoading,
+  isDisabled,
+  children,
   ...rest
 }: {
   children: React.ReactNode;
   className?: string;
+  isLoading?: boolean;
+  isDisabled?: boolean;
 } & TouchableOpacityProps) {
   return (
     <TouchableOpacity
-      className={twMerge("text-slate-900", className)}
+      className={twMerge(
+        "bg-blue-600 p-4 w-full rounded-3xl",
+        isDisabled || isLoading ? "opacity-80" : "",
+        className
+      )}
+      disabled={isDisabled || isLoading}
       {...rest}
     >
-      {children}
+      {isLoading ? (
+        <ActivityIndicator animating={true} size={"large"} color={"white"} />
+      ) : (
+        <Text className="text-white text-center font-semibold text-3xl">
+          {children}
+        </Text>
+      )}
     </TouchableOpacity>
   );
 }
+
+export function QuickActionRow({
+  title,
+  title2,
+  path,
+}: {
+  title: string;
+  title2: string;
+  path: string;
+}) {
+  return (
+    <View className="flex flex-row items-center justify-between pb-2">
+      <TextComponent className="text-2xl font-bold">{title}</TextComponent>
+      <Link className="text-blue-500 font-bold text-2xl" href={path}>
+        {title2}
+      </Link>
+    </View>
+  );
+}
+
+export type iconType =
+  | "storefront-outline"
+  | "card-outline"
+  | "person-outline"
+  | "cube-outline";

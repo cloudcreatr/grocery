@@ -9,7 +9,11 @@ import {
   createTRPCClient,
   httpBatchLink,
   TRPCClientError,
-  loggerLink
+  wsLink,
+  createWSClient,
+  httpBatchStreamLink,
+  httpSubscriptionLink,
+  splitLink,
 } from "@pkg/ui";
 import "expo-dev-client";
 
@@ -33,23 +37,43 @@ function makeQueryClient() {
   });
 }
 
-export default function App({ children }: { children: React.ReactNode }) {
+function Providers({ children }: { children: React.ReactNode }) {
   const queryClient = makeQueryClient();
+  const client = createWSClient({
+    url: `${process.env.EXPO_PUBLIC_API}`,
+    retryDelayMs: () => 2000,
+    onOpen() {
+      console.log("WebSocket connection opened");
+    },
+    onClose() {
+      console.log("WebSocket connection closed");
+    },
+    onError(error) {
+      console.error("WebSocket error:", error);
+    },
+  });
   const [trpcClient] = useState(() =>
     createTRPCClient<AppRouter>({
       links: [
-       
-        httpBatchLink({
-          url: `${process.env.EXPO_PUBLIC_API}/trpc`,
-          headers: async () => {
-            const token = await getToken();
-            if (token) {
-              return {
-                Authorization: `Bearer ${token}`,
-              };
-            }
-            return {};
+        splitLink({
+          condition(op) {
+            return op.type === "subscription";
           },
+          true: wsLink({
+            client,
+          }),
+          false: httpBatchLink({
+            url: `${process.env.EXPO_PUBLIC_API}/trpc`,
+            headers: async () => {
+              const token = await getToken();
+              if (token) {
+                return {
+                  Authorization: `Bearer ${token}`,
+                };
+              }
+              return {};
+            },
+          }),
         }),
       ],
     })
@@ -61,16 +85,28 @@ export default function App({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-          }}
-        >
-          <SafeAreaView>{children}</SafeAreaView>
-          
-        </Stack>
+        {children}
       </TRPCProvider>
     </QueryClientProvider>
+  );
+}
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <Providers>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+        }}
+      >
+        <SafeAreaView>{children}</SafeAreaView>
+      </Stack>
+      <StatusBar backgroundColor="#f1f5f9" style="dark" />
+    </Providers>
   );
 }
 

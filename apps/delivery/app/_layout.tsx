@@ -1,12 +1,11 @@
 import { Stack } from "expo-router";
 import "@/global.css";
-import { AuthProvider } from "@pkg/lib";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createTRPCClient, httpBatchLink } from "@trpc/client";
 import { useState } from "react";
-import { TRPCProvider } from "@/util/trpc";
-import { AppRouter } from "@repo/backend";
+import { TRPCProvider } from "@pkg/ui";
+import { AppRouter } from "@repo/bg";
 
 function makeQueryClient() {
   return new QueryClient({
@@ -49,15 +48,13 @@ export default function App({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
-        <AuthProvider>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-            }}
-          >
-            {children}
-          </Stack>
-        </AuthProvider>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+          }}
+        >
+          {children}
+        </Stack>
       </TRPCProvider>
     </QueryClientProvider>
   );

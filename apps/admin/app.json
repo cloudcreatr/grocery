@@ -1,0 +1,54 @@
+{
+  "expo": {
+    "name": "admin",
+    "slug": "admin",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "adminapp",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "config": {
+        "googleMapsApiKey": "AIzaSyAIKcZqcS6FPbnDoqp47QAMS9-gl0v0heY"
+      }
+    },
+    "android": {
+      "package": "com.omnaidu.admin",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyAIKcZqcS6FPbnDoqp47QAMS9-gl0v0heY"
+        }
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "6e7d14c1-2a4c-4006-bcf5-f35e0df2c47d"
+      }
+    }
+  }
+}

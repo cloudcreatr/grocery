@@ -1,6 +1,5 @@
 import { z } from "zod";
-import { addressSchema, gpsSchema, inputSchema, uploadSchema } from "./field";
-
+import { addressSchema, gpsSchema, inputSchema, selectSchema, uploadSchema } from "./field";
 
 export const storeUserSchema = z.object({
   name: inputSchema,
@@ -24,6 +23,17 @@ export const IndianBankDetailsSchema = z.object({
   BranchName: inputSchema,
   UPI: inputSchema,
 });
+
+export const ProductModifySchema = z.object({
+  id: z.number(),
+  name: inputSchema.nullable(),
+  description: inputSchema.nullable(),
+  price: inputSchema.nullable(),
+  category: selectSchema,
+  img: uploadSchema.nullable(),
+});
+
+export type ProductModify = z.infer<typeof ProductModifySchema>;
 export type IndianBankDetails = z.infer<typeof IndianBankDetailsSchema>;
 export type StoreUser = z.infer<typeof storeUserSchema>;
 export type StoreInfo = z.infer<typeof storeInfoSchema>;

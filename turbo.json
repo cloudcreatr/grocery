@@ -7,9 +7,14 @@
     },
     "//#tunnel": {
       "cache": false,
-     "interactive": true
+      "interactive": true
     },
     "dev": {
+      "dependsOn": ["//#tunnel"],
+      "cache": false,
+      "persistent": true
+    },
+    "backend": {
       "dependsOn": ["//#tunnel"],
       "cache": false,
       "persistent": true

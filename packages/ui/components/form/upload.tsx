@@ -3,6 +3,7 @@ import { useFieldContext } from "./util";
 import { useStore } from "@tanstack/react-form";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import {
+  ButtonComponent,
   upload_store,
   useStore as useUploadStore,
   type startUploadoptions,
@@ -54,16 +55,13 @@ export function UploadField(props: UploadFieldProps) {
           ))}
         </>
       ) : (
-        <TouchableOpacity className="p-6 bg-blue-600 rounded-2xl ">
-          <Text
-            className="text-white font-semibold"
-            onPress={async () => {
-              store.selectAndUpload(props);
-            }}
-          >
-            {value.uploadedFiles.length === 0 ? "Upload file" : "Change file"}
-          </Text>
-        </TouchableOpacity>
+        <ButtonComponent
+          onPress={async () => {
+            store.selectAndUpload(props);
+          }}
+        >
+          {value.uploadedFiles.length === 0 ? "Upload file" : "Change file"}
+        </ButtonComponent>
       )}
     </View>
   );

@@ -1,24 +1,16 @@
 import { eq, store } from "@pkg/lib";
 import { storeInfoSchema } from "./export";
-import { protectedProcedure, router } from "./util/trpc";
+import { protectedProcedure, router, storeProtectedProcedure } from "./util/trpc";
 
 export const storeroute = router({
-  getStoreDetails: protectedProcedure.query(async ({ ctx }) => {
+  getStoreDetails: storeProtectedProcedure.query(async ({ ctx }) => {
     const { db, user } = ctx;
     const getStoreDetails = await db
       .select()
       .from(store)
       .where(eq(store.userId, user.id));
 
-    if (getStoreDetails.length === 0) {
-      const storeDetails = await db
-        .insert(store)
-        .values({
-          userId: user.id,
-        })
-        .returning();
-      return storeDetails[0];
-    }
+    
     return getStoreDetails[0];
   }),
   updateStoreDetails: protectedProcedure

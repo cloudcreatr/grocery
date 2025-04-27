@@ -63,12 +63,9 @@ export default function Store() {
 
   return (
     <ViewComponent className="flex-1 p-6 ">
-      <Loading
-        isloading={isLoading}
-        source={require("@/assets/loading-3.json")}
-      >
-        <ScrollView >
-          <View className="gap-4">
+      <Loading isloading={isLoading}>
+        <ScrollView>
+          <View className="gap-4 pb-4">
             <MainOverview
               title="Store Details"
               description="Tell customers about your store. Add a name and a short description to help users recognize and trust your business."
@@ -125,15 +122,14 @@ export default function Store() {
             />
           </View>
         </ScrollView>
-        
-          <form.AppForm>
-            <form.Submit
-              onPress={form.handleSubmit}
-              isSubmitting={isPending}
-              text="Save Store Info"
-            />
-          </form.AppForm>
-       
+
+        <form.AppForm>
+          <form.Submit
+            onPress={form.handleSubmit}
+            isSubmitting={isPending}
+            text="Save Store Info"
+          />
+        </form.AppForm>
       </Loading>
     </ViewComponent>
   );

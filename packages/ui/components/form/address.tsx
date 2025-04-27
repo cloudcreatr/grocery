@@ -24,6 +24,7 @@ type AddressProps = TextInputProps & {
 import { z } from "zod";
 import { addressSchema } from "@repo/bg";
 import { twMerge } from "tailwind-merge";
+
 export function Address(prop: AddressProps) {
   const field = useFieldContext<z.infer<typeof addressSchema>>();
   const [value, setValue] = useState<string>("");
@@ -169,7 +170,7 @@ export function GPS({
           await getCurrentLocation();
         }}
         className={twMerge(
-          "bg-white p-4 border border-slate-300 rounded-2xl flex-row gap-2",
+          "bg-white p-4 border border-slate-300 rounded-2xl flex-row gap-2 items-center",
           location && "bg-blue-100 border-blue-300"
         )}
         disabled={errorMsg !== null || loading}
@@ -260,7 +261,7 @@ function Map({
               overflow: "hidden",
             }}
           >
-            <Ionicons name="location-outline" size={24} color="white" />
+            <Ionicons name="location-outline" size={20} color="white" />
           </View>
         </Marker>
       </MapView>

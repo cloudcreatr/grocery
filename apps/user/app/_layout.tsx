@@ -1,12 +1,28 @@
-import { Stack } from "expo-router";
+import { Stack, useRouter, type ErrorBoundaryProps } from "expo-router";
 import "@/global.css";
-import { AuthProvider } from "@pkg/lib";
+import {
+  getToken,
+  useAuthStore,
+  QueryClient,
+  QueryClientProvider,
+  TRPCProvider,
+  createTRPCClient,
+  httpBatchLink,
+  TRPCClientError,
+  wsLink,
+  createWSClient,
+  httpBatchStreamLink,
+  httpSubscriptionLink,
+  splitLink,
+} from "@pkg/ui";
+import "expo-dev-client";
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { createTRPCClient, httpBatchLink } from "@trpc/client";
-import { useState } from "react";
-import { TRPCProvider } from "@/util/trpc";
-import { AppRouter } from "@repo/backend";
+import { useEffect, useState } from "react";
+
+import { AppRouter } from "@repo/bg";
+import { View, Text } from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 function makeQueryClient() {
   return new QueryClient({
@@ -14,51 +30,150 @@ function makeQueryClient() {
       queries: {
         // With SSR, we usually want to set some default staleTime
         // above 0 to avoid refetching immediately on the client
-        staleTime: 60 * 1000,
+
+        throwOnError: true,
       },
     },
   });
 }
 
-let browserQueryClient: QueryClient | undefined = undefined;
-
-function getQueryClient() {
-  if (typeof window === "undefined") {
-    // Server: always make a new query client
-    return makeQueryClient();
-  } else {
-    // Browser: make a new query client if we don't already have one
-    // This is very important, so we don't re-make a new client if React
-    // suspends during the initial render. This may not be needed if we
-    // have a suspense boundary BELOW the creation of the query client
-    if (!browserQueryClient) browserQueryClient = makeQueryClient();
-    return browserQueryClient;
-  }
-}
-export default function App({ children }: { children: React.ReactNode }) {
-  const queryClient = getQueryClient();
+function Providers({ children }: { children: React.ReactNode }) {
+  const queryClient = makeQueryClient();
+  const client = createWSClient({
+    url: `${process.env.EXPO_PUBLIC_API}`,
+    retryDelayMs: () => 2000,
+    onOpen() {
+      console.log("WebSocket connection opened");
+    },
+    onClose() {
+      console.log("WebSocket connection closed");
+    },
+    onError(error) {
+      console.error("WebSocket error:", error);
+    },
+  });
   const [trpcClient] = useState(() =>
     createTRPCClient<AppRouter>({
       links: [
-        httpBatchLink({
-          url: `http://${process.env.EXPO_PUBLIC_API}/trpc`,
+        splitLink({
+          condition(op) {
+            return op.type === "subscription";
+          },
+          true: wsLink({
+            client,
+          }),
+          false: httpBatchLink({
+            url: `${process.env.EXPO_PUBLIC_API}/trpc`,
+            headers: async () => {
+              const token = await getToken();
+              if (token) {
+                return {
+                  Authorization: `Bearer ${token}`,
+                };
+              }
+              return {};
+            },
+          }),
         }),
       ],
     })
   );
+  const load = useAuthStore((s) => s.loadAuthState);
+  useEffect(() => {
+    load();
+  }, []);
   return (
     <QueryClientProvider client={queryClient}>
       <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
-        <AuthProvider>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-            }}
-          >
-            {children}
-          </Stack>
-        </AuthProvider>
+        {children}
       </TRPCProvider>
     </QueryClientProvider>
   );
+}
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <Providers>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+        }}
+      >
+        <SafeAreaView>{children}</SafeAreaView>
+      </Stack>
+      <StatusBar backgroundColor="#f1f5f9" style="dark" />
+    </Providers>
+  );
+}
+
+export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
+  let text = "An error occurred";
+  let code: string | undefined = undefined;
+
+  if (error instanceof TRPCClientError) {
+    code = error.data?.code;
+
+    switch (code) {
+      case "UNAUTHORIZED":
+        text = "Unauthorized";
+        break;
+      case "FORBIDDEN":
+        text = error.data.message || "Forbidden";
+        break;
+      default:
+        text = "An error occurred";
+    }
+
+    console.error("TRPC Error Code:", code);
+  }
+
+  return (
+    <View className="flex flex-1 bg-emerald-100 justify-center items-center">
+      <Text className="text-2xl font-bold text-slate-900 ">
+        Something went wrong
+      </Text>
+      {code !== "UNAUTHORIZED" && (
+        <Text
+          onPress={retry}
+          className="bg-slate-950 text-white rounded-lg p-6"
+        >
+          Try Again?
+        </Text>
+      )}
+      <LogoutCOmp error={error} retry={retry} />
+      <StatusBar style="auto" />
+    </View>
+  );
+}
+
+function LogoutCOmp({
+  error,
+  retry,
+}: {
+  error: Error;
+  retry: () => Promise<void>;
+}) {
+  const logout = useAuthStore((s) => s.logout);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!(error instanceof TRPCClientError)) return;
+
+    const code = error.data?.code;
+
+    if (code === "UNAUTHORIZED") {
+      console.log("Logging out due to UNAUTHORIZED error");
+
+      // ✅ Ensure we only log out ONCE per error occurrence
+      logout(router).then(() => {
+        retry(); // Try again after logging out
+      });
+    }
+  }, [error, logout, router, retry]); // ✅ Dependencies properly managed
+
+  return null;
 }

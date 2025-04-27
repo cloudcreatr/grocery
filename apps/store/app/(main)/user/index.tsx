@@ -74,7 +74,7 @@ export default function User() {
         source={require("@/assets/loading-3.json")}
       >
         <ScrollView>
-          <View className="flex-1 gap-4">
+          <View className="flex-1 gap-4 pb-4">
             {data?.name ? (
               <MainOverview
                 title={"Complete Your Profile"}
