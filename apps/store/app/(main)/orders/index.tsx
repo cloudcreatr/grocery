@@ -51,11 +51,7 @@ export default function Orders() {
                     <ProductCard
                       name={item.name}
                       price={item.price}
-                      src={
-                        item.img
-                          ? `${process.env.EXPO_PUBLIC_API}/upload/${item.img.imgID[0]}`
-                          : null
-                      }
+                      src={item.img ? item.img.imgID[0] : null}
                     />
                   </Pressable>
                 );

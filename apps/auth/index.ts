@@ -3,7 +3,7 @@ import { MemoryStorage } from "@openauthjs/openauth/storage/memory";
 
 import { CodeProvider } from "@openauthjs/openauth/provider/code";
 import { CodeUI } from "@openauthjs/openauth/ui/code";
-
+import {Resend } from 'resend'
 import { db, eq, user, subjects, type Sub } from "@pkg/lib";
 import { Hono } from "hono";
 const app = new Hono();
@@ -17,6 +17,16 @@ const r = issuer({
       CodeUI({
         sendCode: async (email, code) => {
           console.log(email, code);
+          
+
+          const resend = new Resend('re_Z1oPQM3C_4wFLJMksfjkoQmiYWCP4okS6');
+
+        await  resend.emails.send({
+            from: "Auth <auth@omnaidu.codes>",
+            to: [typeof email === "string" ? email : email.toString()],
+            subject: `${code} otp`,
+            html: `<p>${code} otp</p>`
+          });
         },
       })
     ),

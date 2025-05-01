@@ -12,7 +12,8 @@
       "supportsTablet": true,
       "config": {
         "googleMapsApiKey": "AIzaSyAIKcZqcS6FPbnDoqp47QAMS9-gl0v0heY"
-      }
+      },
+      "bundleIdentifier": "com.omnaidu.admin"
     },
     "android": {
       "package": "com.omnaidu.admin",
@@ -20,7 +21,11 @@
         "googleMaps": {
           "apiKey": "AIzaSyAIKcZqcS6FPbnDoqp47QAMS9-gl0v0heY"
         }
-      }
+      },
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -36,6 +41,13 @@
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
+        }
+      ],
+      [
+        "expo-maps",
+        {
+          "requestLocationPermission": "true",
+          "locationPermission": "Allow $(ekam) to use your location"
         }
       ]
     ],

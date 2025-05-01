@@ -22,8 +22,6 @@
         }
       }
     },
-    
-    
     "experiments": {
       "typedRoutes": true
     },
@@ -34,7 +32,17 @@
       "eas": {
         "projectId": "72402732-6991-4a29-b89e-dd15d5e8b55a"
       }
+    },
+    "expo": {
+      "plugins": [
+        [
+          "expo-maps",
+          {
+            "requestLocationPermission": "true",
+            "locationPermission": "Allow $(ekam) to use your location"
+          }
+        ]
+      ]
     }
-    
   }
 }
