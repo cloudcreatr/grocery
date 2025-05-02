@@ -42,7 +42,7 @@
         "expo-maps",
         {
           "requestLocationPermission": "true",
-          "locationPermission": "Allow $(ekam) to use your location"
+          "locationPermission": "Allow $(PRODUCT_NAME) to use your location"
         }
       ]
     ],
