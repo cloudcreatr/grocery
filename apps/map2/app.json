@@ -1,26 +1,32 @@
 {
   "expo": {
-    "name": "user",
-    "slug": "user",
+    "name": "map2",
+    "slug": "map2",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myuser",
+    "scheme": "map2",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true,
-      "config": {
-        "googleMapsApiKey": "AIzaSyAIKcZqcS6FPbnDoqp47QAMS9-gl0v0heY"
-      }
+      "supportsTablet": true
     },
     "android": {
-      "package": "com.omnaidu.user",
+      "package": "com.omnaidu.mapp",
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyAIKcZqcS6FPbnDoqp47QAMS9-gl0v0heY"
         }
-      }
+      },
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ],
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true
     },
     "web": {
       "bundler": "metro",
@@ -52,11 +58,9 @@
       "typedRoutes": true
     },
     "extra": {
-      "router": {
-        "origin": false
-      },
+      "router": {},
       "eas": {
-        "projectId": "e2f5508a-fa9b-4495-8e5c-2a5eeb1efe7a"
+        "projectId": "d1746bb5-0fa4-4095-9901-9891564006af"
       }
     }
   }

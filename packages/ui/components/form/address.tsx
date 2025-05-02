@@ -3,8 +3,7 @@ import { useFieldContext } from "./util";
 import { useStore } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import MapView, { Marker } from "react-native-maps";
-import { PROVIDER_GOOGLE } from "react-native-maps";
+
 import { gpsSchema } from "@repo/bg";
 import {
   View,
@@ -162,9 +161,9 @@ export function GPS({
   const { latitude, longitude } = useStore(field.store, (s) => s.value);
   return (
     <View>
-      {latitude && longitude && latitude !== 0 ? (
+      {/* {latitude && longitude && latitude !== 0 ? (
         <Map location={{ latitude, longitude }} />
-      ) : null}
+      ) : null} */}
       <TouchableOpacity
         onPress={async () => {
           await getCurrentLocation();
@@ -201,62 +200,62 @@ export function GPS({
 import { useRef } from "react";
 import { CustomMarker } from "../rn";
 
-function Map({
-  location,
-}: {
-  location: { latitude: number; longitude: number };
-}) {
-  const mapRef = useRef<MapView>(null);
+// function Map({
+//   location,
+// }: {
+//   location: { latitude: number; longitude: number };
+// }) {
+//   const mapRef = useRef<MapView>(null);
 
-  useEffect(() => {
-    if (mapRef.current) {
-      mapRef.current.animateToRegion(
-        {
-          latitude: location.latitude,
-          longitude: location.longitude,
-          latitudeDelta: 0.005, // Adjust for zoom level (smaller = more zoomed in)
-          longitudeDelta: 0.005, // Adjust for zoom level (smaller = more zoomed in)
-        },
-        1000 // Animation duration in milliseconds
-      );
-    }
-  }, [location]);
+//   useEffect(() => {
+//     if (mapRef.current) {
+//       mapRef.current.animateToRegion(
+//         {
+//           latitude: location.latitude,
+//           longitude: location.longitude,
+//           latitudeDelta: 0.005, // Adjust for zoom level (smaller = more zoomed in)
+//           longitudeDelta: 0.005, // Adjust for zoom level (smaller = more zoomed in)
+//         },
+//         1000 // Animation duration in milliseconds
+//       );
+//     }
+//   }, [location]);
 
-  return (
-    <View
-      className="w-full h-40 rounded-2xl overflow-hidden border border-slate-300 z-10 mb-2"
-      style={{ overflow: "hidden" }}
-    >
-      <MapView
-        ref={mapRef}
-        provider={PROVIDER_GOOGLE}
-        style={{
-          width: "100%",
-          height: "100%",
-          overflow: "hidden",
-          zIndex: 0,
-        }}
-        pointerEvents="none"
-        showsCompass={false}
-        initialRegion={{
-          longitude: location.longitude,
-          latitude: location.latitude,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        }}
-        scrollEnabled={false}
-        zoomEnabled={false}
-      >
-        <Marker
-          coordinate={{
-            latitude: location.latitude,
-            longitude: location.longitude,
-          }}
-          title="Current Location"
-        >
-          <CustomMarker />
-        </Marker>
-      </MapView>
-    </View>
-  );
-}
+//   return (
+//     <View
+//       className="w-full h-40 rounded-2xl overflow-hidden border border-slate-300 z-10 mb-2"
+//       style={{ overflow: "hidden" }}
+//     >
+//       <MapView
+//         ref={mapRef}
+//         provider={PROVIDER_GOOGLE}
+//         style={{
+//           width: "100%",
+//           height: "100%",
+//           overflow: "hidden",
+//           zIndex: 0,
+//         }}
+//         pointerEvents="none"
+//         showsCompass={false}
+//         initialRegion={{
+//           longitude: location.longitude,
+//           latitude: location.latitude,
+//           latitudeDelta: 0.0922,
+//           longitudeDelta: 0.0421,
+//         }}
+//         scrollEnabled={false}
+//         zoomEnabled={false}
+//       >
+//         <Marker
+//           coordinate={{
+//             latitude: location.latitude,
+//             longitude: location.longitude,
+//           }}
+//           title="Current Location"
+//         >
+//           <CustomMarker />
+//         </Marker>
+//       </MapView>
+//     </View>
+//   );
+// }
