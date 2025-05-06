@@ -61,11 +61,13 @@ export function ButtonComponent({
   className,
   isLoading,
   isDisabled,
+  textClassName,
   children,
   ...rest
 }: {
-  children: React.ReactNode;
+  children: string;
   className?: string;
+  textClassName?: string;
   isLoading?: boolean;
   isDisabled?: boolean;
 } & TouchableOpacityProps) {
@@ -82,7 +84,12 @@ export function ButtonComponent({
       {isLoading ? (
         <ActivityIndicator animating={true} size={"large"} color={"white"} />
       ) : (
-        <Text className="text-white text-center font-semibold text-3xl">
+        <Text
+          className={twMerge(
+            "text-white text-center font-semibold text-3xl",
+            textClassName
+          )}
+        >
           {children}
         </Text>
       )}

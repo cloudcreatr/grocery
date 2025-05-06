@@ -11,11 +11,10 @@ export function MyTabBar({
 }: BottomTabBarProps & {
   routeInclude: string[];
 }) {
- 
   const { buildHref } = useLinkBuilder();
 
   return (
-    <View className="p-6 px-8 flex flex-row justify-between bg-white rounded-2xl border border-slate-200">
+    <View className="p-6 px-8 flex flex-row  bg-white rounded-2xl border border-slate-200">
       {state.routes
         .filter((route) => {
           return routeInclude.includes(route.name);
@@ -60,7 +59,7 @@ export function MyTabBar({
               testID={options.tabBarButtonTestID}
               onPress={onPress}
               onLongPress={onLongPress}
-              className=" flex flex-col items-center justify-center"
+              className=" flex flex-col items-center justify-center flex-1"
             >
               {options.tabBarIcon && (
                 <options.tabBarIcon focused={isFocused} color="" size={200} />

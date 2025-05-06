@@ -1,15 +1,22 @@
 import { Text, View } from "react-native";
 import { ImageComponent } from "./image";
-import { TextComponent } from "./rn";
+import { ButtonComponent, TextComponent } from "./rn";
+import type React from "react";
 
 export function ProductCard({
   name,
   src,
   price,
+  action,
 }: {
   name: string | null;
   src: string | null;
   price: number | null;
+  action?: {
+    onPress: () => void;
+    title: string;
+    isLoading?: boolean;
+  };
 }) {
   return (
     // Added margin for spacing between cards in columns
@@ -37,6 +44,18 @@ export function ProductCard({
           {price ? `Rs ${price.toFixed(2)}` : "No product price"}
         </TextComponent>
       </View>
+      {action && (
+        <View className="p-2">
+          <ButtonComponent
+            onPress={action.onPress}
+            isLoading={action.isLoading}
+            textClassName="text-lg"
+            className="rounded-lg"
+          >
+            {action.title}
+          </ButtonComponent>
+        </View>
+      )}
     </View>
   );
 }

@@ -2,7 +2,7 @@ import { useTRPC } from "../.././util/trpc";
 import { useFieldContext } from "./util";
 import { useStore } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 import { gpsSchema } from "@repo/bg";
 import {
@@ -64,7 +64,7 @@ export function Address(prop: AddressProps) {
 
   return (
     <View className="w-full">
-      <View className="bg-white border border-slate-300 rounded-2xl p-4 w-full placeholder-slate-400 flex flex-row items-center mb-2">
+      <View className="bg-white border border-slate-300 rounded-2xl p-2 w-full placeholder-slate-400 flex flex-row items-center mb-2">
         <TextInput
           {...prop}
           className="flex-1 "
@@ -161,9 +161,9 @@ export function GPS({
   const { latitude, longitude } = useStore(field.store, (s) => s.value);
   return (
     <View>
-      {/* {latitude && longitude && latitude !== 0 ? (
+      {latitude && longitude && latitude !== 0 ? (
         <Map location={{ latitude, longitude }} />
-      ) : null} */}
+      ) : null}
       <TouchableOpacity
         onPress={async () => {
           await getCurrentLocation();
@@ -197,65 +197,54 @@ export function GPS({
     </View>
   );
 }
-import { useRef } from "react";
-import { CustomMarker } from "../rn";
 
-// function Map({
-//   location,
-// }: {
-//   location: { latitude: number; longitude: number };
-// }) {
-//   const mapRef = useRef<MapView>(null);
+import { GoogleMaps } from "expo-maps";
 
-//   useEffect(() => {
-//     if (mapRef.current) {
-//       mapRef.current.animateToRegion(
-//         {
-//           latitude: location.latitude,
-//           longitude: location.longitude,
-//           latitudeDelta: 0.005, // Adjust for zoom level (smaller = more zoomed in)
-//           longitudeDelta: 0.005, // Adjust for zoom level (smaller = more zoomed in)
-//         },
-//         1000 // Animation duration in milliseconds
-//       );
-//     }
-//   }, [location]);
-
-//   return (
-//     <View
-//       className="w-full h-40 rounded-2xl overflow-hidden border border-slate-300 z-10 mb-2"
-//       style={{ overflow: "hidden" }}
-//     >
-//       <MapView
-//         ref={mapRef}
-//         provider={PROVIDER_GOOGLE}
-//         style={{
-//           width: "100%",
-//           height: "100%",
-//           overflow: "hidden",
-//           zIndex: 0,
-//         }}
-//         pointerEvents="none"
-//         showsCompass={false}
-//         initialRegion={{
-//           longitude: location.longitude,
-//           latitude: location.latitude,
-//           latitudeDelta: 0.0922,
-//           longitudeDelta: 0.0421,
-//         }}
-//         scrollEnabled={false}
-//         zoomEnabled={false}
-//       >
-//         <Marker
-//           coordinate={{
-//             latitude: location.latitude,
-//             longitude: location.longitude,
-//           }}
-//           title="Current Location"
-//         >
-//           <CustomMarker />
-//         </Marker>
-//       </MapView>
-//     </View>
-//   );
-// }
+import { type GoogleMapsViewType } from "expo-maps/build/google/GoogleMaps.types";
+function Map({
+  location,
+}: {
+  location: { latitude: number; longitude: number };
+}) {
+  const ref = useRef<GoogleMapsViewType>(null);
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.setCameraPosition({
+        coordinates: {
+          latitude: location.latitude,
+          longitude: location.longitude,
+        },
+        zoom: 17,
+      });
+    }
+  }, [location]);
+  return (
+    <View
+      className="w-full h-96 rounded-3xl overflow-hidden border border-slate-300 z-10 mb-2"
+      style={{ overflow: "hidden" }}
+    >
+      <GoogleMaps.View
+        ref={ref}
+        style={{ flex: 1 }}
+        uiSettings={{
+          compassEnabled: false,
+          mapToolbarEnabled: false,
+          scaleBarEnabled: false,
+          scrollGesturesEnabled: false,
+          zoomControlsEnabled: false,
+        }}
+        properties={{
+          isBuildingEnabled: true,
+        }}
+        markers={[
+          {
+            coordinates: {
+              latitude: location.latitude,
+              longitude: location.longitude,
+            },
+          },
+        ]}
+      />
+    </View>
+  );
+}

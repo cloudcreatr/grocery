@@ -33,7 +33,7 @@ export default function App() {
 
   return (
     <View>
-      <Text>Slash screen</Text>
+      <Text>Slash screen ommmm</Text>
     </View>
   );
 }

@@ -5,7 +5,7 @@ export default function home() {
  
   return (
     <View>
-      <Text>Home</Text>
+      <Text>Homeooo</Text>
       
     </View>
   );

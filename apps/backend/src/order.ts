@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   protectedProcedure,
+  publicProcedure,
   router,
   storeProtectedProcedure,
 } from "./util/trpc";
@@ -76,17 +77,17 @@ export const order = router({
         orderID: orderID[0].orderID,
       };
     }),
-  storeSubscription: protectedProcedure.subscription(async function* (_) {
+  storeSubscription: publicProcedure.subscription(async function* (_) {
     for await (const data of pubsub.subscribe<Event>("store")) {
       yield data; // Yield the data to the subscriber
     }
   }),
-  deliverySubscription: protectedProcedure.subscription(async function* (_) {
+  deliverySubscription: publicProcedure.subscription(async function* (_) {
     for await (const data of pubsub.subscribe<Event>("delivery")) {
       yield data; // Yield the data to the subscriber
     }
   }),
-  userSubscription: protectedProcedure.subscription(async function* (_) {
+  userSubscription: publicProcedure.subscription(async function* (_) {
     for await (const data of pubsub.subscribe<Event>("user")) {
       yield data; // Yield the data to the subscriber
     }
@@ -96,14 +97,17 @@ export const order = router({
     const waitingOrders = await db
       .select({
         store: {
-          name: store.name,
           lat: store.lat,
           long: store.long,
         },
         product: {
           name: product.name,
 
+          price: product.price,
           img: product.img,
+        },
+        orderItem: {
+          id: orderItem.id,
         },
       })
       .from(orderItem)
@@ -158,11 +162,55 @@ export const order = router({
     .mutation(async (op) => {
       const { orderItemId, deliveryPartnerId } = op.input;
       const { db } = op.ctx;
+
+      const StoreAndDeliveryPartner = await Promise.allSettled([
+        db
+          .select({
+            lat: store.lat,
+            long: store.long,
+          })
+          .from(orderItem)
+          .where(eq(orderItem.id, orderItemId))
+          .innerJoin(store, eq(orderItem.storeID, store.id)),
+        db
+          .select({
+            lat: user.lat,
+            long: user.long,
+          })
+          .from(user)
+          .where(eq(user.id, deliveryPartnerId)),
+      ]);
+      console.log("Store and Delivery Partner", StoreAndDeliveryPartner);
+      if (
+        StoreAndDeliveryPartner[0].status === "rejected" ||
+        !StoreAndDeliveryPartner[0].value
+      ) {
+        throw new Error("Store not found");
+      }
+      if (
+        StoreAndDeliveryPartner[1].status === "rejected" ||
+        !StoreAndDeliveryPartner[1].value
+      ) {
+        throw new Error("Delivery partner not found");
+      }
+      const storeDetails = StoreAndDeliveryPartner[0];
+      const deliveryPartnerDetails = StoreAndDeliveryPartner[1];
+
       await db
         .update(orderItem)
         .set({
           deliveryPartnerId,
           status: "assigned",
+          location: {
+            destination: {
+              lat: storeDetails.value[0]?.lat || 0,
+              long: storeDetails.value[0]?.long || 0,
+            },
+            source: {
+              lat: deliveryPartnerDetails.value[0]?.lat || 0,
+              long: deliveryPartnerDetails.value[0]?.long || 0,
+            },
+          },
         })
         .where(eq(orderItem.id, orderItemId));
       //publish two events
@@ -189,12 +237,49 @@ export const order = router({
     .mutation(async (op) => {
       const { orderItemId } = op.input;
       const { db } = op.ctx;
+
+      const orderItemDetails = await db
+        .select()
+        .from(orderItem)
+        .where(eq(orderItem.id, orderItemId));
+      if (orderItemDetails.length === 0) {
+        throw new Error("Order not found");
+      }
+
+      const storeAnduser = await db
+        .select({
+          store: {
+            lat: store.lat,
+            long: store.long,
+          },
+          user: {
+            lat: user.lat,
+            long: user.long,
+          },
+        })
+        .from(orderItem)
+        .where(eq(orderItem.id, orderItemId))
+        .innerJoin(store, eq(orderItem.storeID, store.id))
+        .innerJoin(userOrder, eq(orderItem.orderId, userOrder.id))
+        .innerJoin(user, eq(userOrder.userId, user.id));
+
       await db
         .update(orderItem)
         .set({
           status: "picked",
+          location: {
+            destination: {
+              lat: storeAnduser[0]?.user.lat || 0,
+              long: storeAnduser[0]?.user.long || 0,
+            },
+            source: {
+              lat: storeAnduser[0]?.store.lat || 0,
+              long: storeAnduser[0]?.store.long || 0,
+            },
+          },
         })
         .where(eq(orderItem.id, orderItemId));
+
       //publish two events
       pubsub.publish<Event>("user", {
         type: "user-invalidation",
@@ -219,6 +304,7 @@ export const order = router({
     .mutation(async (op) => {
       const { orderItemId } = op.input;
       const { db } = op.ctx;
+
       await db
         .update(orderItem)
         .set({
@@ -273,9 +359,9 @@ export const order = router({
         .from(orderItem)
         .where(eq(orderItem.id, orderItemId))
         .innerJoin(store, eq(orderItem.storeID, store.id))
-        .innerJoin(product, eq(orderItem.productId, product.id));
-
-      console.log("Order Details", orderDetails);
+        .innerJoin(product, eq(orderItem.productId, product.id))
+        .innerJoin(userOrder, eq(orderItem.orderId, userOrder.id))
+        .innerJoin(user, eq(userOrder.userId, user.id));
 
       if (orderDetails.length === 0) {
         throw new Error("Order not found");

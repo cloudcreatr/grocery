@@ -75,7 +75,7 @@ export function Input(prop: TextInputProps) {
   const field = useFieldContext<z.infer<typeof inputSchema>>();
 
   return (
-    <View className="bg-white border border-slate-300 rounded-2xl p-4  w-full placeholder-slate-400  ">
+    <View className="bg-white border border-slate-300 rounded-2xl p-2  w-full placeholder-slate-400  ">
       <TextInput
         {...prop}
         className=" "

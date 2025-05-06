@@ -47,7 +47,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         {
           clientId: "YOUR_CLIENT",
           code,
-          redirectUri: makeRedirectUri({ path: "/login" }),
+          redirectUri: makeRedirectUri({ path: "/" }),
           extraParams: { code_verifier: codeVerifier },
         },
         discovery
@@ -74,13 +74,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         console.error("No refresh token found.");
         set({ status: "unauthenticated", user: null });
 
-        router.replace("/login");
+        router.replace("/");
       }
     } catch (error) {
       console.error("Token exchange error", error);
       set({ status: "unauthenticated", user: null, isExchangeToken: false });
 
-      router.replace("/login");
+      router.replace("/");
     }
   },
 
@@ -89,7 +89,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     await SecureStore.deleteItemAsync("refresh_token");
     set({ status: "unauthenticated", user: null });
 
-    router.replace("/login");
+    router.replace("/");
   },
 
   loadAuthState: async () => {
@@ -120,7 +120,7 @@ export const useAuthLogin = () => {
     {
       clientId: "YOUR_CLIENT",
       usePKCE: true,
-      redirectUri: makeRedirectUri({ path: "/login" }),
+      redirectUri: makeRedirectUri({ path: "/" }),
     },
     discovery
   );
