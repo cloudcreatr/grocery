@@ -11,9 +11,11 @@ import {
   TRPCClientError,
   wsLink,
   createWSClient,
-  httpBatchStreamLink,
-  httpSubscriptionLink,
   splitLink,
+  useTRPC,
+  useSubscription,
+  useQueryClient,
+  useConnectionStatusStore,
 } from "@pkg/ui";
 import "expo-dev-client";
 
@@ -28,28 +30,50 @@ function makeQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
-        // With SSR, we usually want to set some default staleTime
-        // above 0 to avoid refetching immediately on the client
-
         throwOnError: true,
       },
     },
   });
 }
 
+function SubscriptionProcessor({ children }: { children: React.ReactNode }) {
+  const t = useTRPC();
+  const q = useQueryClient();
+
+  const sub = useSubscription(
+    t.order.deliverySubscription.subscriptionOptions(undefined, {
+      onStarted() {
+        console.log("Subscription started");
+      },
+      onData(data) {
+        console.log("Subscription data:", data);
+        q.invalidateQueries(t.order.pathFilter());
+      },
+      onError(error) {
+        console.log("Subscription error:", error);
+      },
+    })
+  );
+  return children;
+}
+
 function Providers({ children }: { children: React.ReactNode }) {
   const queryClient = makeQueryClient();
+  const set = useConnectionStatusStore((s) => s.setStatus);
   const client = createWSClient({
     url: `${process.env.EXPO_PUBLIC_API}`,
     retryDelayMs: () => 2000,
     onOpen() {
+      set("connected");
       console.log("WebSocket connection opened");
     },
     onClose() {
+      set("disconnected");
       console.log("WebSocket connection closed");
     },
     onError(error) {
-      console.error("WebSocket error:", error);
+      set("error");
+      console.log("WebSocket error:", error);
     },
   });
   const [trpcClient] = useState(() =>
@@ -78,6 +102,7 @@ function Providers({ children }: { children: React.ReactNode }) {
       ],
     })
   );
+
   const load = useAuthStore((s) => s.loadAuthState);
   useEffect(() => {
     load();
@@ -85,7 +110,7 @@ function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
-        {children}
+        <SubscriptionProcessor>{children}</SubscriptionProcessor>
       </TRPCProvider>
     </QueryClientProvider>
   );
@@ -105,7 +130,7 @@ export default function RootLayout({
       >
         <SafeAreaView>{children}</SafeAreaView>
       </Stack>
-      <StatusBar backgroundColor="#f1f5f9" style="dark" />
+      <StatusBar backgroundColor="#f1f5f9" />
     </Providers>
   );
 }
@@ -145,7 +170,6 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
         </Text>
       )}
       <LogoutCOmp error={error} retry={retry} />
-      <StatusBar style="auto" />
     </View>
   );
 }

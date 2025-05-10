@@ -28,7 +28,7 @@ export function Address(prop: AddressProps) {
   const field = useFieldContext<z.infer<typeof addressSchema>>();
   const [value, setValue] = useState<string>("");
   const [query, setQuery] = useState<string>(value);
-
+  const [isOpen, setIsOpen] = useState(false);
   const t = useTRPC();
   const fv = useStore(field.store, (s) => s.value);
   const { isLoading, data } = useQuery(
@@ -56,6 +56,7 @@ export function Address(prop: AddressProps) {
     field.setValue(address);
     setValue("");
     setQuery("");
+    setIsOpen(false);
     prop.onAddressSelect({
       latitude: lat,
       longitude: long,
@@ -64,58 +65,81 @@ export function Address(prop: AddressProps) {
 
   return (
     <View className="w-full">
-      <View className="bg-white border border-slate-300 rounded-2xl p-2 w-full placeholder-slate-400 flex flex-row items-center mb-2">
-        <TextInput
-          {...prop}
-          className="flex-1 "
-          value={value}
-          placeholder="Enter address"
-          onChangeText={(T) => setValue(T)}
-        />
-        {value ? (
-          <TouchableOpacity onPress={() => setValue("")}>
-            <Ionicons name="close-circle" size={24} color="gray" />
-          </TouchableOpacity>
-        ) : null}
-      </View>
+      <TouchableOpacity
+        onPress={() => {
+          setIsOpen(!isOpen);
+        }}
+        className="bg-white p-4 border border-slate-300 rounded-2xl flex-row gap-2 items-center mb-2 justify-between"
+      >
+        <TextComponent>Enter Address</TextComponent>
+        <Ionicons name="arrow-forward" size={28} color={"#0f172a"} />
+      </TouchableOpacity>
+      <Modal visible={isOpen} onRequestClose={() => setIsOpen(false)} withInput>
+        <View className="bg-white w-full rounded-2xl p-4 border border-slate-200 h-5/6">
+          <View className="bg-white border border-slate-300 rounded-2xl p-2 w-full placeholder-slate-400 flex flex-row items-center mb-2">
+            <TextInput
+              {...prop}
+              className="flex-1 "
+              placeholderTextColor={"#475569"}
+              value={value}
+              placeholder="Enter address"
+              onChangeText={(T) => setValue(T)}
+            />
+            {value ? (
+              <TouchableOpacity onPress={() => setValue("")}>
+                <Ionicons name="close-circle" size={24} color="gray" />
+              </TouchableOpacity>
+            ) : null}
+          </View>
+          <View className="flex-1">
+            {query ? (
+              isLoading ? (
+                <View className="flex-1 justify-center items-center">
+                  <ActivityIndicator />
+                </View>
+              ) : (
+                <>
+                  <ScrollView>
+                    {data &&
+                      data?.places.map((place, index) => (
+                        <TouchableOpacity
+                          key={index}
+                          className="bg-white p-4 border border-slate-300 rounded-2xl mb-2"
+                          onPress={() =>
+                            handleSelectAddress(
+                              place.formattedAddress,
+                              place.location.latitude,
+                              place.location.longitude
+                            )
+                          }
+                        >
+                          <Text className="font-bold text-lg text-slate-900 pb-1">
+                            {place.displayName.text}
+                          </Text>
+                          <Text className="text-sm text-slate-500">
+                            {place.formattedAddress}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                  </ScrollView>
+                </>
+              )
+            ) : (
+              <View className="flex-1 justify-center items-center">
+                <TextComponent className="text-slate-600">
+                  Enter an address to search
+                </TextComponent>
+              </View>
+            )}
+          </View>
+        </View>
+      </Modal>
 
       {fv !== "" && (
         <View className="p-4 border border-blue-300 bg-blue-100 rounded-2xl mt-2 mb-2 ">
           <Text className="font-semibold text-blue-800">{fv}</Text>
         </View>
       )}
-
-      {query ? (
-        isLoading ? (
-          <View className="p-4 border border-slate-300 rounded-2xl mt-2 bg-white">
-            <Text className="font-bold italic">Loading...</Text>
-          </View>
-        ) : (
-          <>
-            {data &&
-              data?.places.map((place, index) => (
-                <TouchableOpacity
-                  key={index}
-                  className="bg-white p-4 border border-slate-300 rounded-2xl mb-2"
-                  onPress={() =>
-                    handleSelectAddress(
-                      place.formattedAddress,
-                      place.location.latitude,
-                      place.location.longitude
-                    )
-                  }
-                >
-                  <Text className="font-bold text-lg text-slate-900 pb-1">
-                    {place.displayName.text}
-                  </Text>
-                  <Text className="text-sm text-slate-500">
-                    {place.formattedAddress}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-          </>
-        )
-      ) : null}
     </View>
   );
 }
@@ -198,15 +222,20 @@ export function GPS({
   );
 }
 
-import { GoogleMaps } from "expo-maps";
+import { type CameraPosition, GoogleMaps } from "expo-maps";
 
 import { type GoogleMapsViewType } from "expo-maps/build/google/GoogleMaps.types";
+import { TextComponent } from "../rn";
+import { Modal } from "../modal";
+import { ActivityIndicator } from "../loading";
 function Map({
   location,
 }: {
   location: { latitude: number; longitude: number };
 }) {
   const ref = useRef<GoogleMapsViewType>(null);
+  const cameraPos = useRef<CameraPosition>(null);
+
   useEffect(() => {
     if (ref.current) {
       ref.current.setCameraPosition({
@@ -216,6 +245,13 @@ function Map({
         },
         zoom: 17,
       });
+      cameraPos.current = {
+        coordinates: {
+          latitude: location.latitude,
+          longitude: location.longitude,
+        },
+        zoom: 17,
+      };
     }
   }, [location]);
   return (
@@ -233,6 +269,15 @@ function Map({
           scrollGesturesEnabled: false,
           zoomControlsEnabled: false,
         }}
+        cameraPosition={
+          cameraPos.current ?? {
+            coordinates: {
+              latitude: location.latitude,
+              longitude: location.longitude,
+            },
+            zoom: 17,
+          }
+        }
         properties={{
           isBuildingEnabled: true,
         }}

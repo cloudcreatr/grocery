@@ -15,10 +15,7 @@ export default function Orders() {
   const r = useRouter();
   return (
     <ScrollViewComponent className="p-6">
-      <Loading
-        isloading={isLoading}
-        source={require("@/assets/loading-3.json")}
-      >
+      <Loading isloading={isLoading}>
         <View>
           <MainOverview
             title="New Orders"

@@ -1,12 +1,18 @@
 import { z } from "zod";
-import { addressSchema, gpsSchema, inputSchema, selectSchema, uploadSchema } from "./field";
+import {
+  addressSchema,
+  gpsSchema,
+  inputSchema,
+  selectSchema,
+  uploadSchema,
+} from "./field";
 
 export const storeUserSchema = z.object({
   name: inputSchema,
   doc: uploadSchema,
   phone: inputSchema,
   address: addressSchema.optional(),
-  gps: gpsSchema.optional(),
+  gps: gpsSchema,
 });
 export const storeInfoSchema = z.object({
   name: inputSchema,
@@ -26,9 +32,9 @@ export const IndianBankDetailsSchema = z.object({
 
 export const ProductModifySchema = z.object({
   id: z.number(),
-  name: inputSchema.nullable(),
-  description: inputSchema.nullable(),
-  price: inputSchema.nullable(),
+  name: inputSchema,
+  description: inputSchema,
+  price: inputSchema,
   category: selectSchema,
   img: uploadSchema.nullable(),
 });

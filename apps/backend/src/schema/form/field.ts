@@ -12,6 +12,6 @@ export const uploadSchema = z.object({
 
 export const selectSchema = z.coerce.number().nullable();
 
-export const inputSchema = z.string();
+export const inputSchema = z.string().min(2);
 
 export const addressSchema = z.string();

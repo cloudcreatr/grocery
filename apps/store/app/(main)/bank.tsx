@@ -9,7 +9,7 @@ import {
 } from "@pkg/ui";
 import { useAppForm } from "@pkg/ui/components/form/util";
 import { IndianBankDetailsSchema, type IndianBankDetails } from "@repo/bg";
-import { View} from "react-native";
+import { View } from "react-native";
 
 export default function Bank() {
   const trpc = useTRPC();
@@ -42,10 +42,7 @@ export default function Bank() {
   });
   return (
     <ViewComponent className="flex-1 p-6 gap-4">
-      <Loading
-        isloading={isLoading}
-        source={require("@/assets/loading-3.json")}
-      >
+      <Loading isloading={isLoading}>
         <MainOverview
           title="Add Your Bank Details"
           description="Enter your account information to receive payments directly from customer orders. Make sure the details are accurate to avoid delays."

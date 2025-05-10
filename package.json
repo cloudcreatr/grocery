@@ -5,7 +5,7 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "tunnel": "sudo service cloudflared start",
-    "backend": "turbo run backend"
+    "backend": "bun --filter '*' backend"
   },
   "devDependencies": {
     "prettier": "^3.5.3",

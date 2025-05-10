@@ -22,12 +22,12 @@ export default function Pending() {
   const { isPending, mutate, error } = useMutation(
     t.order.assignOrder.mutationOptions({
       onSuccess: (_, v) => {
-        // r.push({
-        //   pathname: "/order/[id]",
-        //   params: {
-        //     id: v.orderItemId,
-        //   },
-        // });
+        r.push({
+          pathname: "/order/[id]",
+          params: {
+            id: v.orderItemId,
+          },
+        });
       },
     })
   );

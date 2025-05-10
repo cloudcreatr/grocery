@@ -95,7 +95,7 @@ export default function Order() {
                   {data?.product.name ?? "Product Name"}
                 </TextComponent>
                 <TextComponent className="text-base text-blue-500 font-medium">
-                  ${Number(data?.product.price ?? 0).toFixed(2)}
+                  Rs {Number(data?.product.price ?? 0).toFixed(2)}
                 </TextComponent>
               </View>
             </View>

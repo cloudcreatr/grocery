@@ -75,9 +75,10 @@ export function Input(prop: TextInputProps) {
   const field = useFieldContext<z.infer<typeof inputSchema>>();
 
   return (
-    <View className="bg-white border border-slate-300 rounded-2xl p-2  w-full placeholder-slate-400  ">
+    <View className=" border border-slate-300 rounded-2xl p-2  w-full bg-white   ">
       <TextInput
         {...prop}
+        placeholderTextColor={"#475569"}
         className=" "
         value={field.state.value}
         onChangeText={(T) => field.handleChange(T)}

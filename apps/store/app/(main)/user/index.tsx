@@ -69,10 +69,7 @@ export default function User() {
 
   return (
     <ViewComponent className="flex-1 p-6">
-      <Loading
-        isloading={isLoading}
-        source={require("@/assets/loading-3.json")}
-      >
+      <Loading isloading={isLoading}>
         <ScrollView className="">
           <View className="flex-1 gap-4 pb-6">
             {data?.name ? (

@@ -12,3 +12,6 @@ export { useSubscription } from "@trpc/tanstack-react-query";
 export * from "./components/tabBar";
 export * from "./components/productCard";
 export * from "./components/map";
+export * from "./components/dashboard";
+export * from "./connectionStatus-store";
+export * from "./components/modal";

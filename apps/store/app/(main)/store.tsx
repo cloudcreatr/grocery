@@ -67,7 +67,7 @@ export default function Store() {
         <ScrollView>
           <View className="gap-4 pb-4">
             <MainOverview
-              title="Store Details"
+              title={data?.name ? "Store Info" : "Add Store Info"}
               description="Tell customers about your store. Add a name and a short description to help users recognize and trust your business."
             />
             <form.AppField

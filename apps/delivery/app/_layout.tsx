@@ -17,6 +17,7 @@ import {
   useTRPC,
   useSubscription,
   useQueryClient,
+  useConnectionStatusStore,
 } from "@pkg/ui";
 import "expo-dev-client";
 
@@ -31,9 +32,6 @@ function makeQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
-        // With SSR, we usually want to set some default staleTime
-        // above 0 to avoid refetching immediately on the client
-
         throwOnError: true,
       },
     },
@@ -43,6 +41,7 @@ function makeQueryClient() {
 function SubscriptionProcessor({ children }: { children: React.ReactNode }) {
   const t = useTRPC();
   const q = useQueryClient();
+
   const sub = useSubscription(
     t.order.deliverySubscription.subscriptionOptions(undefined, {
       onStarted() {
@@ -62,16 +61,20 @@ function SubscriptionProcessor({ children }: { children: React.ReactNode }) {
 
 function Providers({ children }: { children: React.ReactNode }) {
   const queryClient = makeQueryClient();
+  const set = useConnectionStatusStore((s) => s.setStatus);
   const client = createWSClient({
     url: `${process.env.EXPO_PUBLIC_API}`,
     retryDelayMs: () => 2000,
     onOpen() {
+      set("connected");
       console.log("WebSocket connection opened");
     },
     onClose() {
+      set("disconnected");
       console.log("WebSocket connection closed");
     },
     onError(error) {
+      set("error");
       console.log("WebSocket error:", error);
     },
   });

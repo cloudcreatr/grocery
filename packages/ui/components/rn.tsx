@@ -65,7 +65,7 @@ export function ButtonComponent({
   children,
   ...rest
 }: {
-  children: string;
+  children: string | React.ReactNode;
   className?: string;
   textClassName?: string;
   isLoading?: boolean;
@@ -97,6 +97,23 @@ export function ButtonComponent({
   );
 }
 
+export type SettingsItemProps = {
+  name: string;
+  icon: iconType;
+  onPress: () => void;
+};
+export function SettingsItem({ name, icon, onPress }: SettingsItemProps) {
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      className="flex flex-row items-center justify-between bg-white p-4 rounded-xl border border-slate-200 shadow"
+    >
+      <Text className="text-lg font-semibold">{name}</Text>
+      <Ionicons name={icon} size={24} color="black" />
+    </TouchableOpacity>
+  );
+}
+
 export function QuickActionRow({
   title,
   title2,
@@ -116,23 +133,10 @@ export function QuickActionRow({
   );
 }
 
-export function CustomMarker() {
-  return (
-    <View
-      className="bg-blue-600"
-      style={{
-        borderRadius: 100,
-        padding: 4,
-        overflow: "hidden",
-      }}
-    >
-      <Ionicons name="location-outline" size={20} color="white" />
-    </View>
-  );
-}
-
 export type iconType =
   | "storefront-outline"
   | "card-outline"
   | "person-outline"
-  | "cube-outline";
+  | "cube-outline"
+  | "log-out-outline"
+  | "radio-outline";

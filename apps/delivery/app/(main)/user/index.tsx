@@ -13,6 +13,7 @@ import { useAppForm } from "@pkg/ui/components/form/util";
 import { useStore } from "@tanstack/react-form";
 import { storeUserSchema, type StoreUser } from "@repo/bg";
 import { ScrollView, Text, View } from "react-native";
+import { useRouter } from "expo-router";
 
 export default function User() {
   const user = useAuthStore((s) => s.user);
@@ -29,7 +30,7 @@ export default function User() {
       },
     })
   );
-
+  console.log(data);
   const form = useAppForm({
     defaultValues: {
       name: data?.name ?? "",
@@ -64,18 +65,14 @@ export default function User() {
     },
   });
 
-  const errors = useStore(form.store, (s) => s.errors);
-  console.log(console.log(errors));
+  const r = useRouter();
 
   return (
     <ViewComponent className="flex-1 p-6">
-      <Loading
-        isloading={isLoading}
-        source={require("@/assets/loading-3.json")}
-      >
+      <Loading isloading={isLoading}>
         <ScrollView className="">
           <View className="flex-1 gap-4 pb-6">
-            {data?.name ? (
+            {!data?.name ? (
               <MainOverview
                 title={"Complete Your Profile"}
                 description={
@@ -84,8 +81,8 @@ export default function User() {
               />
             ) : (
               <MainOverview
-                title="Your Store Owner Profile"
-                description="This is your personal info linked to your store. Keep it accurate to ensure smooth communication and delivery support."
+                title="Your delivery Profile"
+                description="This is your personal info linked to your account. Keep it accurate to ensure smooth communication "
               />
             )}
 
@@ -146,7 +143,12 @@ export default function User() {
         <form.AppForm>
           <form.Submit
             text={data?.name ? "Update Info" : "Complete Profile"}
-            onPress={form.handleSubmit}
+            onPress={() => {
+              form.handleSubmit();
+              if (!data?.name) {
+                r.replace("/(main)/home");
+              }
+            }}
             isSubmitting={isPending}
           />
         </form.AppForm>

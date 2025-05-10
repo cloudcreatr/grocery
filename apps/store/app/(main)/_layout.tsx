@@ -1,11 +1,10 @@
-
 import { View, Text } from "react-native";
 import { getHeaderTitle } from "@react-navigation/elements";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Tabs } from "expo-router";
-import type { BottomTabBarButtonProps } from "@react-navigation/bottom-tabs";
-import {  MyTabBar } from "@pkg/ui";
+import { MyTabBar } from "@pkg/ui";
+
 export default function Layout() {
   return (
     <Tabs
@@ -16,6 +15,7 @@ export default function Layout() {
           routeInclude={["home", "products/index", "settings"]}
         />
       )}
+      // ...existing code...
       screenOptions={{
         header: (props) => {
           const title = getHeaderTitle(props.options, "Ekam");
@@ -28,10 +28,10 @@ export default function Layout() {
               </View>
             </SafeAreaView>
           );
-          
         },
       }}
     >
+      // ...existing code...
       <Tabs.Screen
         name="home" // This is the name of the page and must match the url from root
         options={{
@@ -68,10 +68,4 @@ export default function Layout() {
   );
 }
 
-
-
-
-
-
 //
-

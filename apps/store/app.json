@@ -33,20 +33,25 @@
         "projectId": "72402732-6991-4a29-b89e-dd15d5e8b55a"
       }
     },
-    "expo": {
-      "plugins": [
-        [
-          "expo-maps",
-          {
-            "requestLocationPermission": "true",
-            "locationPermission": "Allow $(PRODUCT_NAME) to use your location"
-          }
-        ]
-      ]
-    },
     "plugins": [
-      "expo-font",
       "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#dbeafe"
+        }
+      ],
+      [
+        "expo-maps",
+        {
+          "requestLocationPermission": "true",
+          "locationPermission": "Allow $(PRODUCT_NAME) to use your location"
+        }
+      ],
+      "expo-font",
       "expo-web-browser"
     ]
   }

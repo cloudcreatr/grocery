@@ -16,30 +16,15 @@ import { FlatList, Pressable, Text } from "react-native";
 
 export default function Products() {
   const trpc = useTRPC();
-  const queryClient = useQueryClient();
+
   const r = useRouter();
   const { data, isLoading } = useQuery(trpc.product.listProduct.queryOptions());
-  const { mutate, isPending } = useMutation(
-    trpc.product.createProduct.mutationOptions({
-      onSuccess: (data) => {
-        queryClient.invalidateQueries(trpc.product.listProduct.queryFilter());
-        r.push({
-          pathname: "/products/[id]",
-          params: {
-            id: data.id,
-          },
-        });
-      },
-    })
-  );
+
   return (
     // Consider if ScrollViewComponent is needed if FlatList handles scrolling
     // If the button should always be visible, position it outside/absolute to the FlatList container
-    <ViewComponent className="p-6 flex-1 ">
-      <Loading
-        isloading={isLoading}
-        source={require("@/assets/loading-3.json")}
-      >
+    <ViewComponent className="px-6 flex-1 ">
+      <Loading isloading={isLoading}>
         {!data || data.length == 0 ? (
           <Text>No products</Text>
         ) : (
@@ -80,9 +65,10 @@ export default function Products() {
 
       {/* Consider positioning the button absolutely if it should overlay the list */}
       <ButtonComponent
-        isLoading={isPending}
         onPress={() => {
-          mutate();
+          r.push({
+            pathname: "/products/new",
+          });
         }}
         // Adjusted positioning if needed, e.g., absolute positioning
         // className="absolute bottom-6 right-6 bg-blue-500"

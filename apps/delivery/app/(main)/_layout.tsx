@@ -5,6 +5,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { Tabs } from "expo-router";
 
 import { MyTabBar } from "@pkg/ui";
+import { StatusBar } from "expo-status-bar";
 export default function Layout() {
   return (
     <Tabs

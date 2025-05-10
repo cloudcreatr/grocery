@@ -7,21 +7,34 @@ import {
 import { z } from "zod";
 import { ProductModifySchema } from "./export";
 export const productRoute = router({
-  createProduct: storeProtectedProcedure.mutation(async (opts) => {
-    const { db, storeDetails } = opts.ctx;
+  createProduct: storeProtectedProcedure
+    .input(ProductModifySchema.omit({ id: true }))
+    .mutation(async (opts) => {
+      const { db, storeDetails } = opts.ctx;
+      const { name, description, price, category, img } = opts.input;
 
-    const id = await db
-      .insert(product)
-      .values({
-        storeId: storeDetails.id,
-      })
-      .returning({
-        id: product.id,
-      });
-    return {
-      id: id[0].id,
-    };
-  }),
+      const id = await db
+        .insert(product)
+        .values({
+          storeId: storeDetails.id,
+          name,
+          description,
+          price: parseFloat(price ?? "0"),
+          categoryID: category,
+          img:
+            img && img.uploadedFiles.length > 0
+              ? {
+                  imgID: img.uploadedFiles,
+                }
+              : null,
+        })
+        .returning({
+          id: product.id,
+        });
+      return {
+        id: id[0].id,
+      };
+    }),
   getProduct: storeProtectedProcedure
     .input(
       z.object({

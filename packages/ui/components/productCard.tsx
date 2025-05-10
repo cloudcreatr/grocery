@@ -22,7 +22,7 @@ export function ProductCard({
     // Added margin for spacing between cards in columns
     // Removed fixed height proportions, let content define height
     // Added padding inside the card
-    <View className=" bg-white overflow-hidden m-2 mb-3 border-gray-200 rounded-xl ">
+    <View className=" bg-white overflow-hidden m-1 mb-3 border border-gray-200 rounded-xl ">
       {src ? (
         // Use aspect-square for a consistent image shape, removed w-full and h-2/3
         <ImageComponent

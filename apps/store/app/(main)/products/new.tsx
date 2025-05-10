@@ -11,65 +11,60 @@ import {
 } from "@pkg/ui";
 import { useAppForm } from "@pkg/ui/components/form/util";
 import { ProductModifySchema, type ProductModify } from "@repo/bg";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { Text, View } from "react-native";
 export default function Page() {
-  const { id } = useLocalSearchParams();
   const t = useTRPC();
   const q = useQueryClient();
-  const { isLoading, data } = useQuery(
-    t.product.getProduct.queryOptions({
-      productId: Number(id),
-    })
-  );
+  const r = useRouter();
 
   const { data: categories, isLoading: isLoading2 } = useQuery(
     t.product.getCategory.queryOptions()
   );
 
   const { isPending, mutate } = useMutation(
-    t.product.modifyProduct.mutationOptions({
-      onSuccess: () => {
-        q.invalidateQueries(t.product.getProduct.queryFilter());
+    t.product.createProduct.mutationOptions({
+      onSuccess: (data) => {
         q.invalidateQueries(t.product.listProduct.queryFilter());
+        r.push({
+          pathname: "/products/[id]",
+          params: {
+            id: data.id,
+          },
+        });
       },
-      onError: console.log,
     })
   );
 
   const form = useAppForm({
     defaultValues: {
-      id: data?.id,
-      name: data?.name ? data.name : "",
-      description: data?.description ? data.description : "",
-      price: data?.price ? data.price.toString() : "",
-      category: data?.categoryID ? data.categoryID : null,
-      img:
-        data?.img && data?.img?.imgID.length > 0
-          ? {
-              uploadedFiles: data.img.imgID,
-              deletedFiles: [],
-            }
-          : {
-              uploadedFiles: [],
-              deletedFiles: [],
-            },
-    } as ProductModify,
+      name: "",
+      description: "",
+      price: "",
+      category: null,
+      img: {
+        uploadedFiles: [],
+        deletedFiles: [],
+      },
+    } as Omit<ProductModify, "id">,
+
     validators: {
-      onChange: ProductModifySchema,
+      onChange: ProductModifySchema.omit({ id: true }),
     },
     onSubmit: ({ value }) => {
+      console.log(value);
       mutate(value);
+      form.reset();
     },
   });
   return (
     <ViewComponent className="px-6 flex-1">
-      <Loading isloading={isLoading || isLoading2}>
+      <Loading isloading={isLoading2}>
         <ScrollViewComponent>
           <View className="flex gap-4 pb-4">
             <MainOverview
-              title="Modify Product"
-              description="Update the details for your new item."
+              title="Add Product"
+              description="Enter the details for your new item."
             />
             <form.AppField
               name="name"
@@ -129,7 +124,7 @@ export default function Page() {
         </ScrollViewComponent>
         <form.AppForm>
           <form.Submit
-            text={data?.name ? "Update Product" : "Add Product"}
+            text={"Add Product"}
             onPress={form.handleSubmit}
             isSubmitting={isPending}
           />
