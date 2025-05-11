@@ -15,6 +15,13 @@
       "when": 1746956711003,
       "tag": "0001_green_mandrill",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1746966219670,
+      "tag": "0002_nostalgic_iron_fist",
+      "breakpoints": true
     }
   ]
 }

@@ -46,10 +46,7 @@ function Providers({ children }: { children: React.ReactNode }) {
     onClose() {
       console.log("WebSocket connection closed");
     },
-    onError(error) {
-      throw new Error("WebSocket error: " + error);
-      console.error("WebSocket error:", error);
-    },
+    onError(error) {},
   });
   const [trpcClient] = useState(() =>
     createTRPCClient<AppRouter>({

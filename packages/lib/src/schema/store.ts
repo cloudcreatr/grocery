@@ -60,23 +60,57 @@ interface ProductImg {
   imgID: string[];
 }
 
-export const category = pgTable("category", {
-  id: serial().primaryKey(),
-  name: text().notNull(),
-  description: text(),
+export const category = pgTable(
+  "category",
+  {
+    id: serial().primaryKey(),
+    name: text().notNull(),
+    description: text(),
 
-  img: text(),
-});
+    img: text(),
+  },
+  (t) => [index("category_name_index").on(t.id)]
+);
 
-export const product = pgTable("product", {
-  id: serial().primaryKey(),
-  name: text(),
-  description: text(),
-  categoryID: integer("category_id").references(() => category.id),
+export const productAvailable = pgTable(
+  "product_availabile",
+  {
+    id: serial().primaryKey(),
+    name: text().notNull(),
+    description: text().notNull(),
+    img: text().notNull(),
+    categoryId: integer("category_id")
+      .notNull()
+      .references(() => category.id),
+  },
+  (t) => [
+    index("cateogoryId").on(t.categoryId),
+    index("product_available_name_index").on(t.name),
+  ]
+);
 
-  storeId: integer("store_id")
-    .notNull()
-    .references(() => store.id),
-  img: jsonb().$type<ProductImg>(),
-  price: real(),
-});
+export const product = pgTable(
+  "product",
+  {
+    id: serial().primaryKey(),
+    name: text(),
+    description: text(),
+    productAvailable: integer("product_available")
+      .references(() => productAvailable.id)
+      .notNull(),
+
+    storeId: integer("store_id")
+      .notNull()
+      .references(() => store.id),
+    img: jsonb().$type<ProductImg>(),
+    price: real(),
+  },
+  (t) => [
+    index("product_name_index").on(t.name),
+    index("product_store_index").on(t.storeId),
+    index("product_available_index").on(t.productAvailable),
+
+    index("product_category_index").on(t.productAvailable),
+    index("product_idex").on(t.id),
+  ]
+);
