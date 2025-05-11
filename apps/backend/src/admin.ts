@@ -110,8 +110,8 @@ export const admin = router({
         .values({
           name,
           description,
-          img: img.uploadedFiles[0],
-          categoryId: category,
+          img: img.uploadedFiles[0] ?? "",
+          categoryId: category ?? undefined,
         })
         .returning({
           id: productAvailable.id,

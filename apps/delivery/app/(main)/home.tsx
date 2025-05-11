@@ -34,7 +34,7 @@ export default function home() {
   const { data: d2 } = useQuery(t.user.getUser.queryOptions());
   useEffect(() => {
     if (d2) {
-      if (d2.name == null || d2.lat == null || d2.name == "") {
+      if (d2.name == null || d2.location == null || d2.name == "") {
         r.replace("/(main)/user");
       }
     }
@@ -116,3 +116,7 @@ export default function home() {
     </ViewComponent>
   );
 }
+
+// export default function home() {
+//   return <TextComponent>buu</TextComponent>;
+// }

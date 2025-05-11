@@ -13,6 +13,12 @@ export const userDetails = router({
           lat: sql<number>`ST_Y(${user.location})`,
           long: sql<number>`ST_X(${user.location})`,
         },
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        address: user.address,
+        doc: user.doc,
       })
       .from(user)
       .where(eq(user.id, U.id));

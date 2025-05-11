@@ -78,10 +78,8 @@ export const productAvailable = pgTable(
     id: serial().primaryKey(),
     name: text().notNull(),
     description: text().notNull(),
-    img: text().notNull(),
-    categoryId: integer("category_id")
-      .notNull()
-      .references(() => category.id),
+    img: text(),
+    categoryId: integer("category_id").references(() => category.id),
   },
   (t) => [
     index("cateogoryId").on(t.categoryId),
@@ -95,10 +93,9 @@ export const product = pgTable(
     id: serial().primaryKey(),
     name: text(),
     description: text(),
-    productAvailable: integer("product_available")
-      .references(() => productAvailable.id)
-      .notNull(),
-
+    productAvailable: integer("product_available").references(
+      () => productAvailable.id
+    ),
     storeId: integer("store_id")
       .notNull()
       .references(() => store.id),

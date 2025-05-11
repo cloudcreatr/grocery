@@ -8,10 +8,11 @@ import {
   useMutation,
   useQueryClient,
   ViewComponent,
+  ButtonComponent,
 } from "@pkg/ui";
 import { useAppForm } from "@pkg/ui/components/form/util";
 import { ProductModifySchema, type ProductModify } from "@repo/bg";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { Text, View } from "react-native";
 export default function Page() {
   const { id } = useLocalSearchParams();
@@ -22,9 +23,10 @@ export default function Page() {
       productId: Number(id),
     })
   );
+  const r = useRouter();
 
   const { data: categories, isLoading: isLoading2 } = useQuery(
-    t.product.getCategory.queryOptions()
+    t.admin.listProductAvailable.queryOptions()
   );
 
   const { isPending, mutate } = useMutation(
@@ -33,21 +35,32 @@ export default function Page() {
         q.invalidateQueries(t.product.getProduct.queryFilter());
         q.invalidateQueries(t.product.listProduct.queryFilter());
       },
-      onError: console.log,
+    })
+  );
+
+  const { isPending: dl, mutate: dm } = useMutation(
+    t.product.deleteProduct.mutationOptions({
+      onSuccess: () => {
+        q.invalidateQueries(t.product.listProduct.queryFilter());
+
+        r.push("/products");
+      },
     })
   );
 
   const form = useAppForm({
     defaultValues: {
-      id: data?.id,
-      name: data?.name ? data.name : "",
-      description: data?.description ? data.description : "",
-      price: data?.price ? data.price.toString() : "",
-      category: data?.categoryID ? data.categoryID : null,
+      id: Number(id),
+      name: data?.product.name ? data.product.name : "",
+      description: data?.product.description ? data.product.description : "",
+      price: data?.product.price ? data.product.price.toString() : "",
+      productAvailable: data?.product.productAvailable
+        ? data.product.productAvailable
+        : null,
       img:
-        data?.img && data?.img?.imgID.length > 0
+        data?.product.img && data?.product.img?.imgID.length > 0
           ? {
-              uploadedFiles: data.img.imgID,
+              uploadedFiles: data.product.img.imgID,
               deletedFiles: [],
             }
           : {
@@ -95,7 +108,7 @@ export default function Page() {
               }}
             />
             <form.AppField
-              name="category"
+              name="productAvailable"
               children={(f) => {
                 return (
                   <f.SelectField
@@ -126,10 +139,20 @@ export default function Page() {
               }}
             />
           </View>
+          <ButtonComponent
+            onPress={() => {
+              dm({
+                id: Number(id),
+              });
+            }}
+            isLoading={dl}
+          >
+            Delete Product
+          </ButtonComponent>
         </ScrollViewComponent>
         <form.AppForm>
           <form.Submit
-            text={data?.name ? "Update Product" : "Add Product"}
+            text={data?.product.name ? "Update Product" : "Add Product"}
             onPress={form.handleSubmit}
             isSubmitting={isPending}
           />

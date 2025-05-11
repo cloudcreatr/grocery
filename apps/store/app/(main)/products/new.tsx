@@ -19,7 +19,7 @@ export default function Page() {
   const r = useRouter();
 
   const { data: categories, isLoading: isLoading2 } = useQuery(
-    t.product.getCategory.queryOptions()
+    t.admin.listProductAvailable.queryOptions()
   );
 
   const { isPending, mutate } = useMutation(
@@ -41,7 +41,7 @@ export default function Page() {
       name: "",
       description: "",
       price: "",
-      category: null,
+      productAvailable: null,
       img: {
         uploadedFiles: [],
         deletedFiles: [],
@@ -79,18 +79,7 @@ export default function Page() {
               }}
             />
             <form.AppField
-              name="price"
-              children={(f) => {
-                return (
-                  <f.Input
-                    placeholder="Product Price"
-                    keyboardType="number-pad"
-                  />
-                );
-              }}
-            />
-            <form.AppField
-              name="category"
+              name="productAvailable"
               children={(f) => {
                 return (
                   <f.SelectField
@@ -108,6 +97,18 @@ export default function Page() {
                 );
               }}
             />
+            <form.AppField
+              name="price"
+              children={(f) => {
+                return (
+                  <f.Input
+                    placeholder="Product Price"
+                    keyboardType="number-pad"
+                  />
+                );
+              }}
+            />
+
             <form.AppField
               name="img"
               children={(f) => {

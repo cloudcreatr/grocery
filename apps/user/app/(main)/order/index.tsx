@@ -21,7 +21,7 @@ export default function Order() {
           {data && data.length > 0 ? (
             data.map((item) => {
               return (
-                <View className="flex flex-col gap-2 p-6 bg-white rounded-cl">
+                <View className="flex flex-col gap-2 p-6 bg-white rounded-cl border border-slate-200 rounded-2xl">
                   <TextComponent className="text-2xl font-bold pb-4">
                     #Orders {item.userOrder.id}
                   </TextComponent>
@@ -46,8 +46,8 @@ export default function Order() {
                           <TextComponent className="text-lg font-semibold">
                             {product.name}
                           </TextComponent>
-                          <TextComponent className="text-lg font-semibold">
-                            {product.price}
+                          <TextComponent className="text-lg font-semibold text-blue-500">
+                            Rs {product.price}
                           </TextComponent>
                         </View>
                       </TouchableOpacity>

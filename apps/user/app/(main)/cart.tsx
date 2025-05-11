@@ -42,9 +42,9 @@ export default function Page() {
   );
   // Calculate total price from successfully loaded items
   const total = queries.reduce((acc, query) => {
-    if (query.isSuccess && query.data?.price) {
+    if (query.isSuccess && query.data?.product.price) {
       // Ensure price is treated as a number
-      const price = Number(query.data.price);
+      const price = Number(query.data.product.price);
       return acc + (isNaN(price) ? 0 : price);
     }
     return acc;
@@ -70,22 +70,22 @@ export default function Page() {
             queries.map((query, index) => (
               <View
                 key={productsId[index] ?? `item-${index}`} // Use product ID for key if available
-                className="bg-white flex gap-4 p-4 my-2 mx-3 rounded-xl flex-row items-center space-x-4"
+                className="bg-white flex gap-4 p-4 my-2 mx-3  flex-row items-center space-x-4 border border-slate-200 rounded-2xl"
               >
                 {query.data ? (
                   <>
                     {/* Product Image */}
                     <ImageComponent
-                      src={query.data.img?.imgID?.[0]} // Display the first image
+                      src={query.data.product.img?.imgID?.[0]} // Display the first image
                       className="w-20 h-20  bg-gray-100 rounded-lg overflow-hidden"
                     />
                     {/* Product Details */}
                     <View className="flex-1 space-y-1 ">
                       <TextComponent className="text-lg font-semibold">
-                        {query.data.name ?? "Product Name"}
+                        {query.data.product.name ?? "Product Name"}
                       </TextComponent>
                       <TextComponent className="text-base text-blue-600 font-medium">
-                        ${Number(query.data.price ?? 0).toFixed(2)}
+                        ${Number(query.data.product.price ?? 0).toFixed(2)}
                       </TextComponent>
                     </View>
                     {/* Remove Button */}
@@ -95,7 +95,7 @@ export default function Page() {
                         size={30}
                         color="red"
                         onPress={() => {
-                          removeFromCart(query.data.id);
+                          removeFromCart(query.data.product.id);
                         }}
                       />
                     </TouchableOpacity>
@@ -115,7 +115,7 @@ export default function Page() {
 
       {/* Fixed Bottom Section - Only show if cart has items */}
       {productsId.length > 0 && (
-        <View className="p-4  flex flex-col gap-4 shadow-md">
+        <View className="p-4  flex flex-col gap-4  ">
           <View className="flex-row justify-between items-center">
             <TextComponent className="text-xl font-medium text-gray-700">
               Total:

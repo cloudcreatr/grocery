@@ -1,4 +1,13 @@
-import { eq, product, and, category, store } from "@pkg/lib";
+import {
+  eq,
+  product,
+  and,
+  store,
+  productAvailable,
+  asc,
+  distanceSort,
+  like,
+} from "@pkg/lib";
 import {
   protectedProcedure,
   router,
@@ -6,6 +15,7 @@ import {
 } from "./util/trpc";
 import { z } from "zod";
 import { ProductModifySchema } from "./export";
+
 export const productRoute = router({
   createProduct: storeProtectedProcedure
     .input(ProductModifySchema.omit({ id: true }))
@@ -35,7 +45,7 @@ export const productRoute = router({
         id: id[0].id,
       };
     }),
-  getProduct: storeProtectedProcedure
+  getProduct: protectedProcedure
     .input(
       z.object({
         productId: z.number(),
@@ -43,26 +53,28 @@ export const productRoute = router({
     )
     .query(async (opts) => {
       const { productId } = opts.input;
-      const { db, storeDetails } = opts.ctx;
+      const { db } = opts.ctx;
 
       const productData = await db
         .select()
         .from(product)
-        .where(
-          and(eq(product.id, productId), eq(product.storeId, storeDetails.id))
-        )
-        .innerJoin(store, eq(product.storeId, store.id));
-      const recommendedProduct = await db
-        .select()
-        .from(product)
-        .where(
-          eq(product.productAvailable, productData[0].product.productAvailable)
-        );
+        .where(eq(product.id, productId));
 
+      if (productData[0].productAvailable) {
+        const recommendedProduct = await db
+          .select()
+          .from(product)
+          .where(eq(product.productAvailable, productData[0].productAvailable));
+
+        return {
+          product: productData[0],
+
+          recommendedProduct: recommendedProduct,
+        };
+      }
       return {
-        product: productData[0].product,
-        store: productData[0].store,
-        recommendedProduct: recommendedProduct,
+        product: productData[0],
+        recommendedProduct: [],
       };
     }),
   modifyProduct: storeProtectedProcedure
@@ -107,9 +119,78 @@ export const productRoute = router({
     const p = await db.select().from(product);
     return p;
   }),
-  getCategory: protectedProcedure.query(async (op) => {
-    const { db } = op.ctx;
-    const p = await db.select().from(category);
-    return p;
-  }),
+  getProductByCategory: protectedProcedure
+    .input(
+      z.object({
+        categoryId: z.number(),
+        limit: z.number().optional(),
+      })
+    )
+    .query(async (opts) => {
+      const { db } = opts.ctx;
+      const { categoryId, limit } = opts.input;
+      const productList = db
+        .select()
+        .from(productAvailable)
+        .where(eq(productAvailable.categoryId, categoryId));
+      return limit ? await productList.limit(limit) : await productList;
+    }),
+  getProductByAvailable: protectedProcedure
+    .input(
+      z.object({
+        lat: z.number(),
+        long: z.number(),
+        availableId: z.number(),
+        limit: z.number().optional(),
+      })
+    )
+    .query(async (opts) => {
+      const { db } = opts.ctx;
+      const { availableId, limit } = opts.input;
+      const productList = db
+        .select({
+          product,
+        })
+        .from(product)
+        .where(eq(product.productAvailable, availableId))
+        .innerJoin(store, eq(product.storeId, store.id))
+        .orderBy(
+          asc(distanceSort(store.location, opts.input.long, opts.input.lat))
+        );
+      return limit ? await productList.limit(limit) : await productList;
+    }),
+
+  deleteProduct: storeProtectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      })
+    )
+    .mutation(async (opts) => {
+      const { db, storeDetails } = opts.ctx;
+      const { id } = opts.input;
+
+      await db
+        .delete(product)
+        .where(and(eq(product.id, id), eq(product.storeId, storeDetails.id)));
+      return {
+        message: "Product deleted",
+      };
+    }),
+
+  getProductBySearch: protectedProcedure
+    .input(
+      z.object({
+        query: z.string(),
+      })
+    )
+    .query(async (opts) => {
+      const { db } = opts.ctx;
+      const { query } = opts.input;
+      const productList = await db
+        .select()
+        .from(productAvailable)
+        .where(and(like(productAvailable.name, `%${query}%`)));
+      return productList;
+    }),
 });

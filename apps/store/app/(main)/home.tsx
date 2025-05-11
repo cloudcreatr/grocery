@@ -32,9 +32,14 @@ export default function home() {
   const { data: b } = useQuery(t.bank.getBankDetails.queryOptions());
   useEffect(() => {
     if (d2 && s && b) {
-      console.log(d2.name, s.name, b.BankName);
-      if (!d2.name || !s.name || !b.BankName) {
-        console.log(!d2?.name || !s?.name || b?.BankName);
+      console.log(d2.name, s.storeDetails.name, b.BankName);
+      if (
+        !d2.name ||
+        !s.storeDetails.name ||
+        !b.BankName ||
+        !s.storeDetails.location
+      ) {
+        console.log(!d2?.name || !s?.storeDetails.name || b?.BankName);
         r.replace("/registeration");
       }
     }

@@ -46,10 +46,10 @@ export default function User() {
 
       phone: data?.phone ?? "",
       address: data?.address ?? "",
-      gps: data?.lat
+      gps: data?.location.lat
         ? {
-            latitude: data.lat,
-            longitude: data.long,
+            latitude: data.location.lat,
+            longitude: data.location.long,
           }
         : {
             latitude: 0,

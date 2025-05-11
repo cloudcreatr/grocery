@@ -1,7 +1,6 @@
 import { Stack, useRouter, type ErrorBoundaryProps } from "expo-router";
 import "@/global.css";
 import {
-  getToken,
   useAuthStore,
   QueryClient,
   QueryClientProvider,
@@ -9,10 +8,6 @@ import {
   createTRPCClient,
   httpBatchLink,
   TRPCClientError,
-  wsLink,
-  createWSClient,
-  splitLink,
-  ViewComponent,
   ButtonComponent,
 } from "@pkg/ui";
 import "expo-dev-client";
@@ -39,17 +34,7 @@ function makeQueryClient() {
 
 function Providers({ children }: { children: React.ReactNode }) {
   const queryClient = makeQueryClient();
-  const client = createWSClient({
-    url: `${process.env.EXPO_PUBLIC_API}`,
-    retryDelayMs: () => 2000,
-    onOpen() {
-      console.log("WebSocket connection opened");
-    },
-    onClose() {
-      console.log("WebSocket connection closed");
-    },
-    onError(error) {},
-  });
+
   const [trpcClient] = useState(() =>
     createTRPCClient<AppRouter>({
       links: [
@@ -59,10 +44,7 @@ function Providers({ children }: { children: React.ReactNode }) {
       ],
     })
   );
-  const load = useAuthStore((s) => s.loadAuthState);
-  useEffect(() => {
-    load();
-  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>

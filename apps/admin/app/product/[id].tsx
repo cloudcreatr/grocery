@@ -9,6 +9,7 @@ import {
   useMutation,
   useQueryClient,
   ViewComponent,
+  ButtonComponent,
 } from "@pkg/ui";
 import { useAppForm } from "@pkg/ui/components/form/util";
 import {
@@ -25,8 +26,15 @@ export default function Page() {
   const t = useTRPC();
   const q = useQueryClient();
   const r = useRouter();
-
-  const { data, isLoading } = useQuery(t.admin.listCategory.queryOptions());
+  const { id } = useLocalSearchParams();
+  const { data: cd, isLoading: cl } = useQuery(
+    t.admin.listCategory.queryOptions()
+  );
+  const { isLoading, data } = useQuery(
+    t.admin.getProductAvailableById.queryOptions({
+      id: Number(id),
+    })
+  );
 
   const { isPending, mutate } = useMutation(
     t.admin.modifyProductAvailable.mutationOptions({
@@ -37,15 +45,25 @@ export default function Page() {
     })
   );
 
+  const { isPending: dp, mutate: dm } = useMutation(
+    t.admin.deleteProductAvailable.mutationOptions()
+  );
   const form = useAppForm({
     defaultValues: {
-      name: "",
-      description: "",
-      category: 0,
-      img: {
-        uploadedFiles: [],
-        deletedFiles: [],
-      },
+      id: Number(id),
+      name: data?.name || "",
+      description: data?.description || "",
+      category: data?.categoryId || 0,
+      img:
+        data && data?.img
+          ? {
+              uploadedFiles: [data.img],
+              deletedFiles: [],
+            }
+          : {
+              uploadedFiles: [],
+              deletedFiles: [],
+            },
     } as ProductAvail,
 
     validators: {
@@ -59,7 +77,7 @@ export default function Page() {
   });
   return (
     <ViewComponent className="px-6 flex-1">
-      <Loading isloading={isLoading}>
+      <Loading isloading={isLoading || cl}>
         <View className="flex gap-4 pb-4">
           <MainOverview
             title="Create Product"
@@ -69,6 +87,25 @@ export default function Page() {
             name="name"
             children={(f) => {
               return <f.Input placeholder="name" />;
+            }}
+          />
+          <form.AppField
+            name="category"
+            children={(f) => {
+              return (
+                <f.SelectField
+                  options={
+                    cd
+                      ? cd.map((d) => {
+                          return {
+                            id: d.id,
+                            name: d.name,
+                          };
+                        })
+                      : []
+                  }
+                />
+              );
             }}
           />
           <form.AppField
@@ -94,7 +131,7 @@ export default function Page() {
 
         <form.AppForm>
           <form.Submit
-            text={"Add Product"}
+            text={"Update Product"}
             onPress={form.handleSubmit}
             isSubmitting={isPending}
           />

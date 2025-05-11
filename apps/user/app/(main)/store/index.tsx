@@ -2,6 +2,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import {
   ButtonComponent,
   Loading,
+  MainOverview,
   ProductCard,
   ScrollViewComponent,
   useMutation,
@@ -18,17 +19,32 @@ export default function Products() {
   const trpc = useTRPC();
 
   const r = useRouter();
+  const { data: ud, isLoading: ul } = useQuery(
+    trpc.user.getUser.queryOptions()
+  );
   const { data, isLoading } = useQuery(
-    trpc.admin.listProductAvailable.queryOptions()
+    trpc.store.getNearByStores.queryOptions(
+      {
+        lat: ud?.location.lat ?? 0,
+        long: ud?.location.long ?? 0,
+      },
+      {
+        enabled: !ul,
+      }
+    )
   );
 
   return (
     // Consider if ScrollViewComponent is needed if FlatList handles scrolling
     // If the button should always be visible, position it outside/absolute to the FlatList container
-    <ViewComponent className="px-6 flex-1 ">
+    <ViewComponent className="px-6 flex-1 gap-6 ">
       <Loading isloading={isLoading}>
+        <MainOverview
+          title="Stores Near You"
+          description="Find stores near you"
+        />
         {!data || data.length == 0 ? (
-          <Text>No products</Text>
+          <Text>No Stores</Text>
         ) : (
           <FlatList
             numColumns={2}
@@ -44,7 +60,7 @@ export default function Products() {
                   style={{ flex: 1 }} // Ensure Pressable takes up the column space
                   onPress={() =>
                     r.push({
-                      pathname: "/product/[id]",
+                      pathname: "/store/[id]",
                       params: {
                         id: item.id,
                       },
@@ -58,23 +74,13 @@ export default function Products() {
                 </Pressable>
               );
             }}
+            // Add contentContainerStyle for potential inner spacing if needed
+            // contentContainerStyle={{ paddingBottom: 80 }} // Example if button overlaps
           />
         )}
       </Loading>
 
       {/* Consider positioning the button absolutely if it should overlay the list */}
-      <ButtonComponent
-        onPress={() => {
-          r.push({
-            pathname: "/product/new",
-          });
-        }}
-        // Adjusted positioning if needed, e.g., absolute positioning
-        // className="absolute bottom-6 right-6 bg-blue-500"
-        className="rounded-full w-fit  bg-blue-500 absolute bottom-4 right-6" // Simple margin-top if it's below the list
-      >
-        <Ionicons name="add-outline" size={30} color="white" />
-      </ButtonComponent>
     </ViewComponent> // Changed ScrollViewComponent to ViewComponent if FlatList handles scroll
   );
 }

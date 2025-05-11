@@ -26,7 +26,9 @@ export default function Page() {
   const q = useQueryClient();
   const r = useRouter();
 
-  const { data, isLoading } = useQuery(t.admin.listCategory.queryOptions());
+  const { data: cd, isLoading: cl } = useQuery(
+    t.admin.listCategory.queryOptions()
+  );
   const { isPending, mutate } = useMutation(
     t.admin.createProductAvailable.mutationOptions({
       onSuccess: (data) => {
@@ -38,6 +40,9 @@ export default function Page() {
           },
         });
       },
+      onError: (e) => {
+        console.log(e);
+      },
     })
   );
 
@@ -45,7 +50,7 @@ export default function Page() {
     defaultValues: {
       name: "",
       description: "",
-      category: 0,
+      category: null,
       img: {
         uploadedFiles: [],
         deletedFiles: [],
@@ -63,7 +68,7 @@ export default function Page() {
   });
   return (
     <ViewComponent className="px-6 flex-1">
-      <Loading isloading={isLoading}>
+      <Loading isloading={cl}>
         <View className="flex gap-4 pb-4">
           <MainOverview
             title="Create Product"
@@ -81,7 +86,25 @@ export default function Page() {
               return <f.Input placeholder="Product Descrption" />;
             }}
           />
-
+          <form.AppField
+            name="category"
+            children={(f) => {
+              return (
+                <f.SelectField
+                  options={
+                    cd
+                      ? cd.map((d) => {
+                          return {
+                            id: d.id,
+                            name: d.name,
+                          };
+                        })
+                      : []
+                  }
+                />
+              );
+            }}
+          />
           <form.AppField
             name="img"
             children={(f) => {

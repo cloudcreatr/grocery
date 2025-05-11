@@ -8,25 +8,42 @@ import {
   useQuery,
   useQueryClient,
   useTRPC,
-  ViewComponent, // ViewComponent might not be needed if ScrollViewComponent is used
+  ViewComponent,
+  // ViewComponent might not be needed if ScrollViewComponent is used
 } from "@pkg/ui";
-import { Link, useRouter } from "expo-router";
+import { Link, useLocalSearchParams, useRouter } from "expo-router";
 // Import Pressable
 import { FlatList, Pressable, Text } from "react-native";
-
+import { MainOverview } from "@pkg/ui";
 export default function Products() {
   const trpc = useTRPC();
-
+  const { id } = useLocalSearchParams();
+  const { data: ud, isLoading: ul } = useQuery(
+    trpc.user.getUser.queryOptions()
+  );
   const r = useRouter();
   const { data, isLoading } = useQuery(
-    trpc.admin.listProductAvailable.queryOptions()
+    trpc.product.getProductByAvailable.queryOptions(
+      {
+        availableId: Number(id),
+        lat: ud?.location.lat ?? 0, // Replace with actual latitude value
+        long: ud?.location.long ?? 0, // Replace with actual longitude value
+      },
+      {
+        enabled: !ul,
+      }
+    )
   );
 
   return (
     // Consider if ScrollViewComponent is needed if FlatList handles scrolling
     // If the button should always be visible, position it outside/absolute to the FlatList container
     <ViewComponent className="px-6 flex-1 ">
-      <Loading isloading={isLoading}>
+      <MainOverview
+        title="Products Available"
+        description="Find products available in your area"
+      />
+      <Loading isloading={isLoading || ul}>
         {!data || data.length == 0 ? (
           <Text>No products</Text>
         ) : (
@@ -35,7 +52,7 @@ export default function Products() {
             // Removed style={{ width: '100%' }} - often not needed with flex parent
             data={data}
             // Added keyExtractor for performance and stability
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item) => item.product.id.toString()}
             renderItem={({ item }) => {
               // Wrap ProductCard in Pressable for navigation
               // Apply flex: 1 to Pressable to ensure it takes up column space
@@ -46,35 +63,24 @@ export default function Products() {
                     r.push({
                       pathname: "/product/[id]",
                       params: {
-                        id: item.id,
+                        id: item.product.id,
                       },
                     })
                   }
                 >
                   <ProductCard
-                    name={item.name}
-                    src={item.img ? item.img : null}
+                    name={item.product.name}
+                    price={item.product.price}
+                    src={item.product.img ? item.product.img.imgID[0] : null}
                   />
                 </Pressable>
               );
             }}
+            // Add contentContainerStyle for potential inner spacing if needed
+            // contentContainerStyle={{ paddingBottom: 80 }} // Example if button overlaps
           />
         )}
       </Loading>
-
-      {/* Consider positioning the button absolutely if it should overlay the list */}
-      <ButtonComponent
-        onPress={() => {
-          r.push({
-            pathname: "/product/new",
-          });
-        }}
-        // Adjusted positioning if needed, e.g., absolute positioning
-        // className="absolute bottom-6 right-6 bg-blue-500"
-        className="rounded-full w-fit  bg-blue-500 absolute bottom-4 right-6" // Simple margin-top if it's below the list
-      >
-        <Ionicons name="add-outline" size={30} color="white" />
-      </ButtonComponent>
     </ViewComponent> // Changed ScrollViewComponent to ViewComponent if FlatList handles scroll
   );
 }

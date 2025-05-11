@@ -29,24 +29,26 @@ export default function Store() {
   );
   const form = useAppForm({
     defaultValues: {
-      name: data ? data.name : "",
+      name: data ? data.storeDetails.name : "",
       img:
-        data && data.img
+        data && data.storeDetails.img
           ? {
-              uploadedFiles: [data.img],
+              uploadedFiles: [data.storeDetails.img],
               deletedFiles: [],
             }
           : {
               uploadedFiles: [],
               deletedFiles: [],
             },
-      description: data?.description ? data.description : "",
-      address: data?.address ? data.address : "",
+      description: data?.storeDetails.description
+        ? data.storeDetails.description
+        : "",
+      address: data?.storeDetails.address ? data.storeDetails.address : "",
       gps:
-        data && data.lat
+        data && data.storeDetails.location?.x
           ? {
-              latitude: data.lat,
-              longitude: data.long,
+              latitude: data.storeDetails.location.y,
+              longitude: data.storeDetails.location.x,
             }
           : {
               latitude: 0,
@@ -67,7 +69,7 @@ export default function Store() {
         <ScrollView>
           <View className="gap-4 pb-4">
             <MainOverview
-              title={data?.name ? "Store Info" : "Add Store Info"}
+              title={data?.storeDetails.name ? "Store Info" : "Add Store Info"}
               description="Tell customers about your store. Add a name and a short description to help users recognize and trust your business."
             />
             <form.AppField

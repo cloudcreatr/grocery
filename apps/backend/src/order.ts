@@ -97,10 +97,6 @@ export const order = router({
     const { db } = op.ctx;
     const waitingOrders = await db
       .select({
-        store: {
-          lat: sql<number>`ST_Y(${user.location})`,
-          long: sql<number>`ST_X(${user.location})`,
-        },
         product: {
           name: product.name,
 
@@ -121,6 +117,7 @@ export const order = router({
       .innerJoin(product, eq(orderItem.productId, product.id))
       .innerJoin(store, eq(orderItem.storeID, store.id))
       .innerJoin(userOrder, eq(orderItem.orderId, userOrder.id))
+      .innerJoin(user, eq(userOrder.userId, user.id))
       .orderBy(
         asc(
           sql<number>`ST_Distance(${store.location}::geography, ${user.location}::geography)`
@@ -137,70 +134,83 @@ export const order = router({
       })
     )
     .mutation(async (op) => {
-      const { orderItemId, deliveryPartnerId } = op.input;
-      const { db } = op.ctx;
+      try {
+        const { orderItemId, deliveryPartnerId } = op.input;
+        const { db } = op.ctx;
 
-      const StoreAndDeliveryPartner = await Promise.allSettled([
-        db
-          .select({
-            lat: sql<number>`ST_Y(${store.location})`,
-            long: sql<number>`ST_X(${store.location})`,
-          })
-          .from(orderItem)
-          .where(eq(orderItem.id, orderItemId))
-          .innerJoin(store, eq(orderItem.storeID, store.id)),
-        db
-          .select({
-            lat: sql<number>`ST_Y(${user.location})`,
-            long: sql<number>`ST_X(${user.location})`,
-          })
-          .from(user)
-          .where(eq(user.id, deliveryPartnerId)),
-      ]);
-      console.log("Store and Delivery Partner", StoreAndDeliveryPartner);
-      if (
-        StoreAndDeliveryPartner[0].status === "rejected" ||
-        !StoreAndDeliveryPartner[0].value
-      ) {
-        throw new Error("Store not found");
-      }
-      if (
-        StoreAndDeliveryPartner[1].status === "rejected" ||
-        !StoreAndDeliveryPartner[1].value
-      ) {
-        throw new Error("Delivery partner not found");
-      }
-      const storeDetails = StoreAndDeliveryPartner[0];
-      const deliveryPartnerDetails = StoreAndDeliveryPartner[1];
+        const StoreAndDeliveryPartner = await Promise.allSettled([
+          db
+            .select({
+              lat: sql<number>`ST_Y(${store.location})`,
+              long: sql<number>`ST_X(${store.location})`,
+            })
+            .from(orderItem)
+            .where(eq(orderItem.id, orderItemId))
+            .innerJoin(store, eq(orderItem.storeID, store.id)),
+          db
+            .select({
+              lat: sql<number>`ST_Y(${user.location})`,
+              long: sql<number>`ST_X(${user.location})`,
+            })
+            .from(user)
+            .where(eq(user.id, deliveryPartnerId)),
+        ]);
+        console.log("Store and Delivery Partner", StoreAndDeliveryPartner);
+        if (
+          StoreAndDeliveryPartner[0].status === "rejected" ||
+          (StoreAndDeliveryPartner[0].status === "fulfilled" &&
+            StoreAndDeliveryPartner[0].value.length === 0)
+        ) {
+          console.log("Store not found for order item ID:", orderItemId);
+          throw new Error("Store not found for order item");
+        }
+        if (
+          StoreAndDeliveryPartner[1].status === "rejected" ||
+          (StoreAndDeliveryPartner[1].status === "fulfilled" &&
+            StoreAndDeliveryPartner[1].value.length === 0)
+        ) {
+          console.log("Delivery partner not found with ID:", deliveryPartnerId);
+          throw new Error("Delivery partner not found");
+        }
+        const storeDetails =
+          StoreAndDeliveryPartner[0] as PromiseFulfilledResult<
+            Array<{ lat: number; long: number }>
+          >; // Type assertion for clarity
+        const deliveryPartnerDetails =
+          StoreAndDeliveryPartner[1] as PromiseFulfilledResult<
+            Array<{ lat: number; long: number }>
+          >; // Type assertion for clarity
 
-      await db
-        .update(orderItem)
-        .set({
-          deliveryPartnerId,
-          status: "assigned",
-          location: {
-            destination: {
-              lat: storeDetails.value[0]?.lat || 0,
-              long: storeDetails.value[0]?.long || 0,
+        await db
+          .update(orderItem)
+          .set({
+            deliveryPartnerId,
+            status: "assigned",
+            location: {
+              destination: {
+                lat: storeDetails.value[0]?.lat || 0,
+                long: storeDetails.value[0]?.long || 0,
+              },
+              source: {
+                lat: deliveryPartnerDetails.value[0]?.lat || 0,
+                long: deliveryPartnerDetails.value[0]?.long || 0,
+              },
             },
-            source: {
-              lat: deliveryPartnerDetails.value[0]?.lat || 0,
-              long: deliveryPartnerDetails.value[0]?.long || 0,
-            },
-          },
-        })
-        .where(eq(orderItem.id, orderItemId));
-      //publish two events
-      pubsub.publish<Event>("user", {
-        type: "user-invalidation",
-      });
-      pubsub.publish<Event>("delivery", {
-        type: "delivery-invalidation",
-      });
-      pubsub.publish<Event>("store", {
-        type: "store-invalidation",
-      });
-
+          })
+          .where(eq(orderItem.id, orderItemId));
+        //publish two events
+        pubsub.publish<Event>("user", {
+          type: "user-invalidation",
+        });
+        pubsub.publish<Event>("delivery", {
+          type: "delivery-invalidation",
+        });
+        pubsub.publish<Event>("store", {
+          type: "store-invalidation",
+        });
+      } catch (error) {
+        console.error("Error assigning order:", error);
+      }
       return {
         message: "Order assigned",
       };

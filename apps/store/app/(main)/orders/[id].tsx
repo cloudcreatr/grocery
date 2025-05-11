@@ -113,30 +113,6 @@ export default function Order() {
             </OrderOverViewCard>
           </View>
         </ScrollViewComponent>
-        {status !== "delivered" && (
-          <View className="py-2">
-            <ButtonComponent
-              onPress={() => {
-                if (status === "assigned") {
-                  mutate({
-                    orderItemId: Number(id),
-                  });
-                } else if (status === "picked") {
-                  completeOrder({
-                    orderItemId: Number(id),
-                  });
-                }
-              }}
-              isLoading={isPending || isCompleteOrderPending}
-            >
-              {status === "assigned"
-                ? "Pickup Order"
-                : status === "picked"
-                  ? "Complete Order"
-                  : "Order Delivered"}
-            </ButtonComponent>
-          </View>
-        )}
       </Loading>
     </ViewComponent>
   );

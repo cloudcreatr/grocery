@@ -20,7 +20,7 @@ export function SelectField({
     <View className="flex gap-2">
       <View className="flex-row items-center justify-between p-4 border border-slate-300 rounded-xl bg-white">
         <TextComponent className="text-slate-500">
-          {f.state.value === null
+          {f.state.value === null || f.state.value === 0
             ? "Select category"
             : options.find((o) => o.id === f.state.value)?.name}
         </TextComponent>
