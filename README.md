@@ -1,8 +1,16 @@
+
+## docker run 
 docker run --name some-postgis -e POSTGRES_PASSWORD=mysecretpassword -d postgis/postgis
 
+
+
+## gets ip
 docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' some-postgis
 
+## docker start
+docker start some-postgis
 
+## install tunnel
 # Add cloudflare gpg key
 sudo mkdir -p --mode=0755 /usr/share/keyrings
 curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg | sudo tee /usr/share/keyrings/cloudflare-main.gpg >/dev/null
