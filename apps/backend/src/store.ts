@@ -1,6 +1,10 @@
 import { eq, store } from "@pkg/lib";
 import { storeInfoSchema } from "./export";
-import { protectedProcedure, router, storeProtectedProcedure } from "./util/trpc";
+import {
+  protectedProcedure,
+  router,
+  storeProtectedProcedure,
+} from "./util/trpc";
 
 export const storeroute = router({
   getStoreDetails: storeProtectedProcedure.query(async ({ ctx }) => {
@@ -10,7 +14,6 @@ export const storeroute = router({
       .from(store)
       .where(eq(store.userId, user.id));
 
-    
     return getStoreDetails[0];
   }),
   updateStoreDetails: protectedProcedure
@@ -27,8 +30,10 @@ export const storeroute = router({
               ? input.img.uploadedFiles[0]
               : null,
           address: input.address,
-          lat: input.gps?.latitude,
-          long: input.gps?.longitude,
+          location: {
+            x: input.gps.longitude,
+            y: input.gps.latitude,
+          },
         })
         .where(eq(store.userId, user.id));
 

@@ -4,8 +4,6 @@ import { protectedProcedure, router } from "./util/trpc";
 import { storeUserSchema } from "./export";
 import { deleteFile } from "./upload";
 
-
-
 export const userDetails = router({
   getUser: protectedProcedure.query(async (opts) => {
     const { db, user: U } = opts.ctx;
@@ -24,8 +22,10 @@ export const userDetails = router({
 
         phone,
         address,
-        lat: gps?.latitude,
-        long: gps?.longitude,
+        location: {
+          x: gps.longitude,
+          y: gps.latitude,
+        },
 
         doc: doc
           ? {

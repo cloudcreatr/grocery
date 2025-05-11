@@ -15,7 +15,7 @@ export default function Layout() {
           routeInclude={["home", "products/index", "settings"]}
         />
       )}
-      // ...existing code...
+      
       screenOptions={{
         header: (props) => {
           const title = getHeaderTitle(props.options, "Ekam");

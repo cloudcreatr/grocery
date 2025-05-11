@@ -1,9 +1,10 @@
-import { blob, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { integer, jsonb, serial, text } from "drizzle-orm/pg-core";
 import { user } from "./user";
 import { product, store } from "./store";
+import { pgTable } from "drizzle-orm/pg-core";
 
-export const userOrder = sqliteTable("user_order", {
-  id: integer().primaryKey(),
+export const userOrder = pgTable("user_order", {
+  id: serial().primaryKey(),
   userId: integer("user_id")
     .notNull()
     .references(() => user.id),
@@ -20,8 +21,8 @@ export type DeliveryLoactions = {
     long: number;
   };
 };
-export const orderItem = sqliteTable("order_item", {
-  id: integer().primaryKey(),
+export const orderItem = pgTable("order_item", {
+  id: serial().primaryKey(),
   orderId: integer("order_id")
     .notNull()
     .references(() => userOrder.id),
@@ -36,5 +37,5 @@ export const orderItem = sqliteTable("order_item", {
     enum: ["waiting", "assigned", "picked", "delivered"],
   }).$defaultFn(() => "waiting"),
 
-  location: blob({ mode: "json" }).$type<DeliveryLoactions>(),
+  location: jsonb().$type<DeliveryLoactions>(),
 });

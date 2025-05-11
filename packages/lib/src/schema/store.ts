@@ -1,24 +1,31 @@
 import {
-  blob,
+  geometry,
+  index,
   integer,
+  jsonb,
+  pgTable,
   real,
-  sqliteTable,
+  serial,
   text,
-} from "drizzle-orm/sqlite-core";
+} from "drizzle-orm/pg-core";
 import { user } from "./user";
 import { z } from "zod";
-export const store = sqliteTable("store", {
-  id: integer().primaryKey(),
-  name: text(),
-  description: text(),
-  userId: integer("user_id")
-    .notNull()
-    .references(() => user.id),
-  img: text(),
-  lat: real(),
-  long: real(),
-  address: text(),
-});
+export const store = pgTable(
+  "store",
+  {
+    id: serial().primaryKey(),
+    name: text(),
+    description: text(),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => user.id),
+    img: text(),
+
+    location: geometry("looction", { type: "point", mode: "xy", srid: 4326 }),
+    address: text(),
+  },
+  (t) => [index("store_location_index").using("gist", t.location)]
+);
 
 const IndianBankDetailsSchema = z.object({
   IFSC: z.string(),
@@ -30,12 +37,12 @@ const IndianBankDetailsSchema = z.object({
 
 type IndianBankDetails = z.infer<typeof IndianBankDetailsSchema>;
 
-export const bank = sqliteTable("bank", {
-  id: integer().primaryKey(),
+export const bank = pgTable("bank", {
+  id: serial().primaryKey(),
   userid: integer("user_id")
     .notNull()
     .references(() => user.id),
-  details: blob({ mode: "json" })
+  details: jsonb()
     .$type<IndianBankDetails>()
     .$defaultFn(() => {
       return {
@@ -53,16 +60,16 @@ interface ProductImg {
   imgID: string[];
 }
 
-export const category = sqliteTable("category", {
-  id: integer().primaryKey(),
+export const category = pgTable("category", {
+  id: serial().primaryKey(),
   name: text().notNull(),
   description: text(),
 
   img: text(),
 });
 
-export const product = sqliteTable("product", {
-  id: integer().primaryKey(),
+export const product = pgTable("product", {
+  id: serial().primaryKey(),
   name: text(),
   description: text(),
   categoryID: integer("category_id").references(() => category.id),
@@ -70,6 +77,6 @@ export const product = sqliteTable("product", {
   storeId: integer("store_id")
     .notNull()
     .references(() => store.id),
-  img: blob({ mode: "json" }).$type<ProductImg>(),
+  img: jsonb().$type<ProductImg>(),
   price: real(),
 });

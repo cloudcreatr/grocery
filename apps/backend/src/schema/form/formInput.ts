@@ -19,7 +19,7 @@ export const storeInfoSchema = z.object({
   img: uploadSchema,
   description: inputSchema,
   address: addressSchema.optional(),
-  gps: gpsSchema.optional(),
+  gps: gpsSchema,
 });
 
 export const IndianBankDetailsSchema = z.object({

@@ -1,22 +1,27 @@
+import { geometry, serial } from "drizzle-orm/pg-core";
 import {
-  blob,
+  jsonb,
   index,
   integer,
   real,
-  sqliteTable,
   text,
-} from "drizzle-orm/sqlite-core";
+  pgTable,
+} from "drizzle-orm/pg-core";
 
 interface Doc {
   id: string[];
 }
-export const user = sqliteTable("user", {
-  id: integer().primaryKey(),
-  email: text().unique().notNull(),
-  name: text(),
-  doc: blob({ mode: "json" }).$type<Doc>(),
-  phone: text(),
-  address: text(),
-  lat: real(),
-  long: real(),
-});
+export const user = pgTable(
+  "user",
+  {
+    id: serial().primaryKey(),
+    email: text().unique().notNull(),
+    name: text(),
+    doc: jsonb().$type<Doc>(),
+    phone: text(),
+    address: text(),
+
+    location: geometry("loction", { type: "point", mode: "xy", srid: 4326 }),
+  },
+  (t) => [index("user_location_index").using("gist", t.location)]
+);

@@ -14,9 +14,10 @@ import {
   isNull,
   user,
   store,
+  sql,
+  asc,
 } from "@pkg/lib";
 import { pubsub } from "./util/pubsub";
-import { getDistanceFromLatLonInKm } from "./util/distance_formula";
 
 const arrayOfProducts = z.object({
   productId: z.number().array(),
@@ -54,15 +55,15 @@ export const order = router({
             id: product.storeId,
           })
           .from(product)
-          .where(eq(product.id, id))
-          .get();
+          .where(eq(product.id, id));
+
         if (!storeID) {
           throw new Error("Product not found");
         }
         await db.insert(orderItem).values({
           orderId: orderID[0].orderID,
           productId: id,
-          storeID: storeID.id,
+          storeID: storeID[0].id,
         });
       }
 
@@ -93,12 +94,12 @@ export const order = router({
     }
   }),
   getWaitingOrders: protectedProcedure.query(async (op) => {
-    const { db, user: U } = op.ctx;
+    const { db } = op.ctx;
     const waitingOrders = await db
       .select({
         store: {
-          lat: store.lat,
-          long: store.long,
+          lat: sql<number>`ST_Y(${user.location})`,
+          long: sql<number>`ST_X(${user.location})`,
         },
         product: {
           name: product.name,
@@ -118,39 +119,15 @@ export const order = router({
         )
       )
       .innerJoin(product, eq(orderItem.productId, product.id))
-      .innerJoin(store, eq(orderItem.storeID, store.id));
-    const userLocation = db
-      .select({
-        lat: user.lat,
-        long: user.long,
-      })
-      .from(user)
-      .where(eq(user.id, U.id))
-      .get();
-    if (!userLocation || !userLocation.lat || !userLocation.long) {
-      console.log(userLocation);
-      throw new Error("User location not found");
-    }
+      .innerJoin(store, eq(orderItem.storeID, store.id))
+      .innerJoin(userOrder, eq(orderItem.orderId, userOrder.id))
+      .orderBy(
+        asc(
+          sql<number>`ST_Distance(${store.location}::geography, ${user.location}::geography)`
+        )
+      );
 
-    const orders_with_distance = waitingOrders
-      .map((order) => {
-        if (!order.store.lat || !order.store.long) {
-          throw new Error("Store location not found");
-        }
-        const d = getDistanceFromLatLonInKm(
-          userLocation.lat!,
-          userLocation.long!,
-          order.store.lat,
-          order.store.long
-        );
-        return {
-          ...order,
-
-          distance: d,
-        };
-      })
-      .sort((a, b) => a.distance - b.distance);
-    return orders_with_distance;
+    return waitingOrders;
   }),
   assignOrder: protectedProcedure
     .input(
@@ -166,16 +143,16 @@ export const order = router({
       const StoreAndDeliveryPartner = await Promise.allSettled([
         db
           .select({
-            lat: store.lat,
-            long: store.long,
+            lat: sql<number>`ST_Y(${store.location})`,
+            long: sql<number>`ST_X(${store.location})`,
           })
           .from(orderItem)
           .where(eq(orderItem.id, orderItemId))
           .innerJoin(store, eq(orderItem.storeID, store.id)),
         db
           .select({
-            lat: user.lat,
-            long: user.long,
+            lat: sql<number>`ST_Y(${user.location})`,
+            long: sql<number>`ST_X(${user.location})`,
           })
           .from(user)
           .where(eq(user.id, deliveryPartnerId)),
@@ -249,12 +226,12 @@ export const order = router({
       const storeAnduser = await db
         .select({
           store: {
-            lat: store.lat,
-            long: store.long,
+            lat: sql<number>`ST_Y(${store.location})`,
+            long: sql<number>`ST_X(${store.location})`,
           },
           user: {
-            lat: user.lat,
-            long: user.long,
+            lat: sql<number>`ST_Y(${user.location})`,
+            long: sql<number>`ST_X(${user.location})`,
           },
         })
         .from(orderItem)
