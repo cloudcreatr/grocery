@@ -11,14 +11,12 @@ import {
   TRPCClientError,
   wsLink,
   createWSClient,
-  httpBatchStreamLink,
-  httpSubscriptionLink,
   splitLink,
-  ButtonComponent,
-  useConnectionStatusStore,
   useTRPC,
-  useQueryClient,
   useSubscription,
+  useQueryClient,
+  useConnectionStatusStore,
+  ButtonComponent,
 } from "@pkg/ui";
 import "expo-dev-client";
 
@@ -33,9 +31,6 @@ function makeQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
-        // With SSR, we usually want to set some default staleTime
-        // above 0 to avoid refetching immediately on the client
-
         throwOnError: true,
       },
     },
@@ -136,7 +131,7 @@ export default function RootLayout({
       >
         <SafeAreaView>{children}</SafeAreaView>
       </Stack>
-      <StatusBar backgroundColor="#f1f5f9" style="dark" />
+      <StatusBar backgroundColor="#f1f5f9" />
     </Providers>
   );
 }
@@ -175,6 +170,7 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
     </SafeAreaView>
   );
 }
+
 function LogoutCOmp({
   error,
   retry,

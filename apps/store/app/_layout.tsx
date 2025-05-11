@@ -42,7 +42,7 @@ function SubscriptionProcessor({ children }: { children: React.ReactNode }) {
   const q = useQueryClient();
 
   const sub = useSubscription(
-    t.order.deliverySubscription.subscriptionOptions(undefined, {
+    t.order.storeSubscription.subscriptionOptions(undefined, {
       onStarted() {
         console.log("Subscription started");
       },
