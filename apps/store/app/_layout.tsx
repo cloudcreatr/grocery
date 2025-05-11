@@ -16,6 +16,7 @@ import {
   useSubscription,
   useQueryClient,
   useConnectionStatusStore,
+  ButtonComponent,
 } from "@pkg/ui";
 import "expo-dev-client";
 
@@ -157,20 +158,16 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
   }
 
   return (
-    <View className="flex flex-1 bg-emerald-100 justify-center items-center">
-      <Text className="text-2xl font-bold text-slate-900 ">
-        Something went wrong
+    <SafeAreaView className="flex flex-1  justify-between bg-slate-100 p-6">
+      <LogoutCOmp error={error} retry={retry} />
+      <Text className="text-4xl font-bold text-slate-900 ">
+        We're sorry, but we encountered a problem. Please try again later
       </Text>
       {code !== "UNAUTHORIZED" && (
-        <Text
-          onPress={retry}
-          className="bg-slate-950 text-white rounded-lg p-6"
-        >
-          Try Again?
-        </Text>
+        <ButtonComponent onPress={retry}>Try Again</ButtonComponent>
       )}
-      <LogoutCOmp error={error} retry={retry} />
-    </View>
+      <StatusBar style="auto" />
+    </SafeAreaView>
   );
 }
 

@@ -1,4 +1,4 @@
-import { eq, product, and, category } from "@pkg/lib";
+import { eq, product, and, category, store } from "@pkg/lib";
 import {
   protectedProcedure,
   router,
@@ -11,7 +11,7 @@ export const productRoute = router({
     .input(ProductModifySchema.omit({ id: true }))
     .mutation(async (opts) => {
       const { db, storeDetails } = opts.ctx;
-      const { name, description, price, category, img } = opts.input;
+      const { name, description, price, productAvailable, img } = opts.input;
 
       const id = await db
         .insert(product)
@@ -20,7 +20,7 @@ export const productRoute = router({
           name,
           description,
           price: parseFloat(price ?? "0"),
-          categoryID: category,
+          productAvailable,
           img:
             img && img.uploadedFiles.length > 0
               ? {
@@ -50,14 +50,26 @@ export const productRoute = router({
         .from(product)
         .where(
           and(eq(product.id, productId), eq(product.storeId, storeDetails.id))
+        )
+        .innerJoin(store, eq(product.storeId, store.id));
+      const recommendedProduct = await db
+        .select()
+        .from(product)
+        .where(
+          eq(product.productAvailable, productData[0].product.productAvailable)
         );
 
-      return productData[0];
+      return {
+        product: productData[0].product,
+        store: productData[0].store,
+        recommendedProduct: recommendedProduct,
+      };
     }),
   modifyProduct: storeProtectedProcedure
     .input(ProductModifySchema)
     .mutation(async (opts) => {
-      const { id, name, description, price, category, img } = opts.input;
+      const { id, name, description, price, productAvailable, img } =
+        opts.input;
       const { db, storeDetails } = opts.ctx;
 
       await db
@@ -66,7 +78,7 @@ export const productRoute = router({
           name,
           description,
           price: parseFloat(price ?? "0"),
-          categoryID: category,
+          productAvailable: productAvailable,
           img:
             img && img.uploadedFiles.length > 0
               ? {

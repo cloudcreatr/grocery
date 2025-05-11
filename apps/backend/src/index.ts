@@ -11,6 +11,7 @@ import { storeroute } from "./store";
 
 import { productRoute } from "./product";
 import { order } from "./order";
+import { admin } from "./admin";
 export const appRouter = router({
   user: userDetails,
   maps: maps,
@@ -18,11 +19,8 @@ export const appRouter = router({
   store: storeroute,
   product: productRoute,
   order,
+  admin,
 });
-type Message = {
-  message: string;
-  time: string;
-};
 
 const wsRouterHandler = createBunWSHandler({
   router: appRouter,

@@ -99,8 +99,8 @@ export function ButtonComponent({
 
 export type SettingsItemProps = {
   name: string;
-  icon: iconType;
-  onPress: () => void;
+  icon?: iconType;
+  onPress?: () => void;
 };
 export function SettingsItem({ name, icon, onPress }: SettingsItemProps) {
   return (
@@ -109,7 +109,7 @@ export function SettingsItem({ name, icon, onPress }: SettingsItemProps) {
       className="flex flex-row items-center justify-between bg-white p-4 rounded-xl border border-slate-200 shadow"
     >
       <Text className="text-lg font-semibold">{name}</Text>
-      <Ionicons name={icon} size={24} color="black" />
+      {icon && <Ionicons name={icon} size={24} color="black" />}
     </TouchableOpacity>
   );
 }

@@ -1,4 +1,4 @@
-import { eq, user } from "@pkg/lib";
+import { eq, sql, user } from "@pkg/lib";
 import { protectedProcedure, router } from "./util/trpc";
 
 import { storeUserSchema } from "./export";
@@ -7,7 +7,15 @@ import { deleteFile } from "./upload";
 export const userDetails = router({
   getUser: protectedProcedure.query(async (opts) => {
     const { db, user: U } = opts.ctx;
-    const userD = await db.select().from(user).where(eq(user.id, U.id));
+    const userD = await db
+      .select({
+        location: {
+          lat: sql<number>`ST_Y(${user.location})`,
+          long: sql<number>`ST_X(${user.location})`,
+        },
+      })
+      .from(user)
+      .where(eq(user.id, U.id));
     console.log(userD);
     return userD[0];
   }),

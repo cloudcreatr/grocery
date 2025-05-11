@@ -1,44 +1,23 @@
-// import { useAuthStore } from "@pkg/ui";
-// import { useRouter } from "expo-router";
-// import { useEffect } from "react";
-// import { ButtonComponent } from "@pkg/ui";
-// import { View, Text } from "react-native";
-
-import { View, Text } from "react-native";
-
-// export default function App() {
-//   const status = useAuthStore((s) => s.status);
-//   const router = useRouter();
-
-//   useEffect(() => {
-//     let timer: ReturnType<typeof setTimeout> | null = null;
-
-//     if (status === "authenticated") {
-//       timer = setTimeout(() => {
-//         router.replace("/(main)/home");
-//       }, 1000);
-//       console.log("logged in /index");
-//     } else if (status === "unauthenticated") {
-//       timer = setTimeout(() => {
-//         router.replace("/login");
-//       }, 1000);
-//       console.log("logged out /index");
-//     }
-
-//     return () => {
-//       if (timer) {
-//         clearTimeout(timer);
-//       }
-//     };
-//   }, [status, router]);
-
-//   return (
-//     <View>
-//       <Text>Slash screen</Text>
-//     </View>
-//   );
-// }
+import { SettingsItem, ViewComponent } from "@pkg/ui";
+import { useRouter } from "expo-router";
+import { Text } from "react-native";
 
 export default function App() {
-  return <Text>omm</Text>;
+  const r = useRouter();
+  return (
+    <ViewComponent className="p-6 flex-1 gap-4">
+      <SettingsItem
+        name="Category"
+        onPress={() => {
+          r.push("/category");
+        }}
+      />
+      <SettingsItem
+        name="Products"
+        onPress={() => {
+          r.push("/product");
+        }}
+      />
+    </ViewComponent>
+  );
 }

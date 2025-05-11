@@ -10,7 +10,7 @@ export const uploadSchema = z.object({
   deletedFiles: z.string().array(),
 });
 
-export const selectSchema = z.coerce.number().nullable();
+export const selectSchema = z.coerce.number();
 
 export const inputSchema = z.string().min(2);
 

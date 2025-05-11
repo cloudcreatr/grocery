@@ -1,4 +1,4 @@
-import { eq, store } from "@pkg/lib";
+import { eq, product, store } from "@pkg/lib";
 import { storeInfoSchema } from "./export";
 import {
   protectedProcedure,
@@ -13,8 +13,15 @@ export const storeroute = router({
       .select()
       .from(store)
       .where(eq(store.userId, user.id));
+    const storeProduct = await db
+      .select()
+      .from(product)
+      .where(eq(product.storeId, getStoreDetails[0].id));
 
-    return getStoreDetails[0];
+    return {
+      storeDetails: getStoreDetails[0],
+      product: storeProduct,
+    };
   }),
   updateStoreDetails: protectedProcedure
     .input(storeInfoSchema)

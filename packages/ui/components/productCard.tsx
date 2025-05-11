@@ -11,7 +11,7 @@ export function ProductCard({
 }: {
   name: string | null;
   src: string | null;
-  price: number | null;
+  price?: number | null;
   action?: {
     onPress: () => void;
     title: string;
@@ -40,9 +40,11 @@ export function ProductCard({
         <TextComponent className="  font-bold text-lg text-wrap">
           {name ? name : "No product name"}
         </TextComponent>
-        <TextComponent className="text-blue-500 font-semibold">
-          {price ? `Rs ${price.toFixed(2)}` : "No product price"}
-        </TextComponent>
+        {price && (
+          <TextComponent className="text-blue-500 font-semibold">
+            {price ? `Rs ${price.toFixed(2)}` : "No product price"}
+          </TextComponent>
+        )}
       </View>
       {action && (
         <View className="p-2">

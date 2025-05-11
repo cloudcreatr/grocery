@@ -35,11 +35,27 @@ export const ProductModifySchema = z.object({
   name: inputSchema,
   description: inputSchema,
   price: inputSchema,
-  category: selectSchema,
+  productAvailable: selectSchema,
   img: uploadSchema.nullable(),
+});
+
+export const CategorySchema = z.object({
+  id: z.number().optional(),
+  name: inputSchema,
+  description: inputSchema,
+  img: uploadSchema,
+});
+export const ProductAvailSchema = z.object({
+  id: z.number().optional(),
+  name: inputSchema,
+  description: inputSchema,
+  img: uploadSchema,
+  category: selectSchema,
 });
 
 export type ProductModify = z.infer<typeof ProductModifySchema>;
 export type IndianBankDetails = z.infer<typeof IndianBankDetailsSchema>;
 export type StoreUser = z.infer<typeof storeUserSchema>;
 export type StoreInfo = z.infer<typeof storeInfoSchema>;
+export type categorySchema = z.infer<typeof CategorySchema>;
+export type ProductAvail = z.infer<typeof ProductAvailSchema>;
